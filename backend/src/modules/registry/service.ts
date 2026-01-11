@@ -2,14 +2,6 @@ import { prisma } from '../../shared/db/prisma';
 import { NotFoundError, PermissionError } from '../../shared/errors';
 import { AuthenticatedUser } from '../../shared/auth/auth-provider';
 import { TaskStatus, UserRole } from '@prisma/client';
-
-// ... inside class ...
-
-// Correcting line 166
-select: { tasks: { where: { status: { not: TaskStatus.CLOSED } } } }
-
-// Correcting line 195
-select: { tasks: { where: { status: { not: TaskStatus.CLOSED } } } }
 import { AuditLogger } from '../../shared/audit/audit-logger';
 import { ComplianceEvaluator } from '../../modules/compliance/evaluator';
 
@@ -200,7 +192,7 @@ export class RegistryService {
       include: {
         company: true,
         _count: {
-          select: { tasks: { where: { status: 'OPEN' } } }
+          select: { tasks: { where: { status: { not: TaskStatus.CLOSED } } } }
         }
       },
     });
