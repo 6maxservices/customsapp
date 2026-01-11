@@ -1,0 +1,10 @@
+Copy this content and save as .env file in the backend folder:
+
+DATABASE_URL="postgresql://postgres:admin@localhost:5432/customsappfuel?schema=public"
+PORT=4000
+NODE_ENV=development
+SESSION_SECRET=change-me-in-production-min-32-chars-random-string-please
+UPLOAD_DIR=./uploads
+MAX_FILE_SIZE=10485760
+FRONTEND_URL=http://localhost:3000
+

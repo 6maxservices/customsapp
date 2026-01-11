@@ -1,0 +1,345 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  COMPANY_ADMIN
+  COMPANY_OPERATOR
+  CUSTOMS_REVIEWER
+  CUSTOMS_SUPERVISOR
+  CUSTOMS_DIRECTOR
+  SYSTEM_ADMIN
+}
+
+enum SubmissionStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  REQUIRES_CLARIFICATION
+}
+
+enum TaskType {
+  ACTION
+  SANCTION
+}
+
+enum TaskCategory {
+  LICENSE
+  CALIBRATION
+  IOW_DATA
+  OTHER
+}
+
+enum TaskSeverity {
+  MINOR
+  MAJOR
+  CRITICAL
+}
+
+enum TaskStatus {
+  AWAITING_COMPANY
+  COMPANY_RESPONDED
+  IN_REVIEW
+  CLOSED
+  ESCALATED
+}
+
+enum ObligationFrequency {
+  ANNUAL
+  PER_CHANGE
+  PER_10_DAY
+  AD_HOC
+}
+
+enum ObligationCriticality {
+  CRITICAL
+  MAJOR
+  MINOR
+}
+
+enum ObligationFieldType {
+  BOOLEAN
+  DATE
+  TEXT
+  NUMBER
+  MULTI_FIELD
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  companyId    String?
+  company      Company? @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  submissions        Submission[]      @relation("SubmittedBy")
+  reviewedSubmissions Submission[]     @relation("ReviewedBy")
+  createdTasks       Task[]            @relation("CreatedBy")
+  assignedTasks      Task[]            @relation("AssignedTo")
+  taskMessages       TaskMessage[]
+  evidence           Evidence[]
+  auditLogs          AuditLog[]
+
+  @@index([companyId])
+  @@index([email])
+  @@index([role])
+}
+
+model Company {
+  id        String   @id @default(uuid())
+  name      String
+  taxId     String   @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  users      User[]
+  stations   Station[]
+  submissions Submission[]
+
+  @@index([taxId])
+}
+
+model Station {
+  id        String   @id @default(uuid())
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  name      String
+  amdika    String?  // Unique Station ID (Greek)
+  prefecture String? // NOMOS
+  city      String?  // EDRA
+  installationType String? // EGKATASTASI
+  address   String?
+  lat       Float?
+  lng       Float?
+  slug      String?  @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  submissions Submission[]
+  tasks       Task[]
+  evidence    Evidence[]
+
+  @@index([companyId])
+  @@index([lat, lng])
+  @@index([slug])
+}
+
+model ObligationCatalogVersion {
+  id            String      @id @default(uuid())
+  version       String      @unique
+  effectiveDate DateTime
+  createdAt     DateTime    @default(now())
+  createdBy     String?
+
+  // Relations
+  obligations Obligation[]
+
+  @@index([version])
+}
+
+model Obligation {
+  id               String                  @id @default(uuid())
+  code             String
+  title            String
+  description      String?
+  fieldType        ObligationFieldType
+  frequency        ObligationFrequency
+  criticality      ObligationCriticality
+  catalogVersionId String
+  catalogVersion   ObligationCatalogVersion @relation(fields: [catalogVersionId], references: [id], onDelete: Cascade)
+  triggerAction    String? // none / request_clarification / draft_eyte_notice / draft_enforcement_order
+  legalReference   String?
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+
+  // Relations
+  submissionChecks SubmissionCheck[]
+  tasks            Task[]
+  evidence         Evidence[]
+
+  @@unique([code, catalogVersionId])
+  @@index([catalogVersionId])
+  @@index([code])
+  @@index([criticality])
+}
+
+model SubmissionPeriod {
+  id          String   @id @default(uuid())
+  startDate   DateTime
+  endDate     DateTime
+  deadlineDate DateTime
+  periodNumber Int
+  month       Int
+  year        Int
+  createdAt   DateTime @default(now())
+
+  // Relations
+  submissions Submission[]
+
+  @@unique([periodNumber, month, year])
+  @@index([startDate, endDate])
+  @@index([deadlineDate])
+}
+
+model Submission {
+  id          String           @id @default(uuid())
+  periodId    String
+  period      SubmissionPeriod @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  stationId   String
+  station     Station          @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  companyId   String
+  company     Company          @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  status      SubmissionStatus @default(DRAFT)
+  submittedAt DateTime?
+  submittedById String?
+  submittedBy User?            @relation("SubmittedBy", fields: [submittedById], references: [id])
+  reviewedAt  DateTime?
+  reviewedById String?
+  reviewedBy  User?            @relation("ReviewedBy", fields: [reviewedById], references: [id])
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  // Relations
+  checks  SubmissionCheck[]
+  tasks   Task[]   @relation("TaskOrigin")
+  resolvingTasks Task[] @relation("TaskResolution")
+  evidence Evidence[]
+
+  @@unique([periodId, stationId])
+  @@index([periodId])
+  @@index([stationId])
+  @@index([companyId])
+  @@index([status])
+  @@index([submittedAt])
+}
+
+model SubmissionCheck {
+  id           String     @id @default(uuid())
+  submissionId String
+  submission   Submission @relation(fields: [submissionId], references: [id], onDelete: Cascade)
+  obligationId String
+  obligation   Obligation @relation(fields: [obligationId], references: [id], onDelete: Cascade)
+  value        String? // JSON string for flexible field types
+  notes        String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([submissionId, obligationId])
+  @@index([submissionId])
+  @@index([obligationId])
+}
+
+model Task {
+  id           String     @id @default(uuid())
+  
+  // Link to the rejected submission that caused this
+  originSubmissionId String?
+  originSubmission   Submission? @relation("TaskOrigin", fields: [originSubmissionId], references: [id], onDelete: SetNull)
+  
+  // Link to the new submission that resolves this
+  resolutionSubmissionId String?
+  resolutionSubmission   Submission? @relation("TaskResolution", fields: [resolutionSubmissionId], references: [id], onDelete: SetNull)
+
+  stationId    String
+  station      Station    @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  
+  obligationId String?
+  obligation   Obligation? @relation(fields: [obligationId], references: [id], onDelete: SetNull)
+
+  type         TaskType     @default(ACTION)
+  category     TaskCategory @default(OTHER)
+  severity     TaskSeverity @default(MAJOR)
+
+  title        String
+  description  String?
+  resolutionNotes String?
+
+  status       TaskStatus @default(AWAITING_COMPANY)
+  dueDate      DateTime?
+  
+  createdById  String
+  createdBy    User       @relation("CreatedBy", fields: [createdById], references: [id])
+  assignedToId String?
+  assignedTo   User?      @relation("AssignedTo", fields: [assignedToId], references: [id])
+  
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  // Relations
+  messages TaskMessage[]
+
+  @@index([originSubmissionId])
+  @@index([stationId])
+  @@index([assignedToId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model TaskMessage {
+  id        String   @id @default(uuid())
+  taskId    String
+  task      Task     @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String
+  createdAt DateTime @default(now())
+
+  @@index([taskId])
+  @@index([userId])
+}
+
+model Evidence {
+  id           String     @id @default(uuid())
+  submissionId String?
+  submission   Submission? @relation(fields: [submissionId], references: [id], onDelete: SetNull)
+  stationId    String
+  station      Station    @relation(fields: [stationId], references: [id], onDelete: Cascade)
+  obligationId String?
+  obligation   Obligation? @relation(fields: [obligationId], references: [id], onDelete: SetNull)
+  filename     String
+  mimeType     String
+  size         Int
+  storagePath  String
+  uploadedById String
+  uploadedBy   User       @relation(fields: [uploadedById], references: [id])
+  uploadedAt   DateTime   @default(now())
+
+  @@index([submissionId])
+  @@index([stationId])
+  @@index([obligationId])
+  @@index([uploadedById])
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  tenantId   String? // companyId if applicable
+  entityType String
+  entityId   String
+  action     String // CREATE, UPDATE, DELETE
+  diff       String? // JSON string
+  timestamp  DateTime @default(now())
+
+  @@index([actorId])
+  @@index([tenantId])
+  @@index([entityType, entityId])
+  @@index([timestamp])
+}
