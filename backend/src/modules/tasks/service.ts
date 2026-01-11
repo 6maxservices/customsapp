@@ -26,6 +26,9 @@ export interface CreateTaskMessageInput {
 }
 
 export class TasksService {
+  constructor() {
+    console.log('TasksService V2 Loaded - Relations Fixed');
+  }
   async getTaskById(id: string, actor: AuthenticatedUser) {
     const task = await prisma.task.findUnique({
       where: { id },
