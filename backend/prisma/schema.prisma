@@ -343,3 +343,10 @@ model AuditLog {
   @@index([entityType, entityId])
   @@index([timestamp])
 }
+
+model Session {
+  id        String   @id
+  sid       String   @unique
+  data      String
+  expiresAt   DateTime
+}

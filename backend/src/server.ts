@@ -36,18 +36,31 @@ app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Session configuration - MUST be after CORS for preflight to work correctly without session
+import { PrismaSessionStore } from '@quixo3/prisma-session-store';
+import { prisma } from './shared/db/prisma';
+
+// ...
+
 app.use(
   session({
     secret: config.sessionSecret,
     resave: false,
     saveUninitialized: false,
-    name: 'sessionId', // Custom session name
+    name: 'sessionId',
+    store: new PrismaSessionStore(
+      prisma,
+      {
+        checkPeriod: 2 * 60 * 1000, //count to clean expired sessions
+        dbRecordIdIsSessionId: true,
+        dbRecordIdFunction: undefined,
+      }
+    ),
     cookie: {
-      secure: config.nodeEnv === 'production', // Set to true for HTTPS in production
+      secure: config.nodeEnv === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: config.nodeEnv === 'production' ? 'none' : 'lax', // 'none' for cross-site cookies in prod
-      path: '/', // Ensure cookie is available for all paths
+      sameSite: 'lax', // Proxy fix allows 'lax' effectively (safer than none)
+      path: '/',
     },
   })
 );
