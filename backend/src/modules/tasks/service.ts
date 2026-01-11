@@ -30,7 +30,8 @@ export class TasksService {
     const task = await prisma.task.findUnique({
       where: { id },
       include: {
-        submission: true,
+        originSubmission: true,
+        resolutionSubmission: true,
         station: { include: { company: true } },
         obligation: true,
         createdBy: true,
@@ -73,7 +74,8 @@ export class TasksService {
           },
         },
         include: {
-          submission: true,
+          originSubmission: true,
+          resolutionSubmission: true,
           station: { include: { company: true } },
           obligation: true,
           createdBy: true,
@@ -86,7 +88,8 @@ export class TasksService {
     // Customs users see all tasks
     return prisma.task.findMany({
       include: {
-        submission: true,
+        originSubmission: true,
+        resolutionSubmission: true,
         station: { include: { company: true } },
         obligation: true,
         createdBy: true,
@@ -184,7 +187,8 @@ export class TasksService {
         assignedToId: input.assignedToId,
       },
       include: {
-        submission: true,
+        originSubmission: true,
+        resolutionSubmission: true,
         station: { include: { company: true } },
         obligation: true,
         createdBy: true,
@@ -207,7 +211,8 @@ export class TasksService {
       where: { id },
       data: input,
       include: {
-        submission: true,
+        originSubmission: true,
+        resolutionSubmission: true,
         station: { include: { company: true } },
         obligation: true,
         createdBy: true,
