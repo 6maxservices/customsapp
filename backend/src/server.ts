@@ -17,6 +17,9 @@ import reportingRoutes from './api/routes/reporting';
 
 const app = express();
 
+// Required for Vercel (behind proxy) to trust HTTPS for secure cookies
+app.set('trust proxy', 1);
+
 // Middleware
 // CORS must be first AND configured before session
 console.log('Allowing Origin:', config.frontendUrl);
