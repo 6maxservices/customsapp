@@ -115,7 +115,10 @@ export class TasksService {
     }
 
     return prisma.task.findMany({
-      where: { submissionId },
+      where: { originSubmissionId: submissionId },
+
+      // ... later in createTask ...
+      originSubmissionId: input.submissionId,
       include: {
         station: { include: { company: true } },
         obligation: true,
@@ -177,7 +180,7 @@ export class TasksService {
 
     return prisma.task.create({
       data: {
-        submissionId: input.submissionId,
+        originSubmissionId: input.submissionId,
         stationId: input.stationId,
         obligationId: input.obligationId,
         title: input.title,
