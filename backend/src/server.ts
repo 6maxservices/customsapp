@@ -17,24 +17,9 @@ import reportingRoutes from './api/routes/reporting';
 
 const app = express();
 
-// Session configuration - MUST be before CORS
-app.use(
-  session({
-    secret: config.sessionSecret,
-    resave: false,
-    saveUninitialized: false,
-    name: 'sessionId', // Custom session name
-    cookie: {
-      secure: false, // Set to false for HTTP in development
-      httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Use 'lax' for development, allows cookies to be sent
-      path: '/', // Ensure cookie is available for all paths
-    },
-  })
-);
-
 // Middleware
+// CORS must be first AND configured before session
+console.log('Allowing Origin:', config.frontendUrl);
 app.use(
   cors({
     origin: config.frontendUrl,
@@ -43,8 +28,26 @@ app.use(
     allowedHeaders: ['Content-Type', 'Authorization'],
   })
 );
+
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Session configuration - MUST be after CORS for preflight to work correctly without session
+app.use(
+  session({
+    secret: config.sessionSecret,
+    resave: false,
+    saveUninitialized: false,
+    name: 'sessionId', // Custom session name
+    cookie: {
+      secure: config.nodeEnv === 'production', // Set to true for HTTPS in production
+      httpOnly: true,
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: config.nodeEnv === 'production' ? 'none' : 'lax', // 'none' for cross-site cookies in prod
+      path: '/', // Ensure cookie is available for all paths
+    },
+  })
+);
 
 // Rate limiting on auth endpoints
 const authLimiter = rateLimit({
