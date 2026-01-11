@@ -163,7 +163,7 @@ export class RegistryService {
       include: {
         company: true,
         _count: {
-          select: { tasks: { where: { status: 'OPEN' } } }
+          select: { tasks: { where: { status: { not: TaskStatus.CLOSED } } } }
         }
       },
     });

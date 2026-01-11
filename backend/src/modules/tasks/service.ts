@@ -121,7 +121,7 @@ export class TasksService {
       where: { originSubmissionId: submissionId },
 
       // ... later in createTask ...
-      originSubmissionId: input.submissionId,
+      originSubmissionId: submissionId,
       include: {
         station: { include: { company: true } },
         obligation: true,
