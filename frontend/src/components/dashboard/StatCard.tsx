@@ -26,7 +26,7 @@ export function StatCard({
     iconClassName,
 }: StatCardProps) {
     return (
-        <div className={cn("bg-white overflow-hidden rounded-lg shadow-sm border border-gray-100", className)}>
+        <div className={cn("bg-white overflow-hidden rounded-lg shadow-sm border border-gray-100 cursor-pointer hover:shadow-md transition-all", className)}>
             <div className="p-5">
                 <div className="flex items-center">
                     <div className="flex-shrink-0">

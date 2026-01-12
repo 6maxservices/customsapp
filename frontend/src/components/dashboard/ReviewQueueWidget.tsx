@@ -41,7 +41,7 @@ export default function ReviewQueueWidget({ submissions }: ReviewQueueProps) {
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
                         {displayItems.map((item: any, idx: number) => (
-                            <tr key={idx} className="hover:bg-blue-50/30 transition-colors">
+                            <tr key={idx} className="hover:bg-blue-50/30 transition-colors cursor-pointer" onClick={() => window.location.href = `/stations/${item.stationId || '1'}`}>
                                 <td className="px-6 py-4 whitespace-nowrap">
                                     <div className="text-sm font-bold text-gray-900">{item.stationName || item.station?.name}</div>
                                     <div className="text-xs text-gray-500">{item.companyName || 'Alpha Petroleum S.A.'}</div>

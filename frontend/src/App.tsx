@@ -38,7 +38,16 @@ function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            {user?.role.startsWith('COMPANY_') ? <CompanyDashboard /> : <CustomsDashboard />}
+            {user?.role.startsWith('COMPANY_') ? <CompanyDashboard /> :
+              <CustomsDashboard />}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/companies/:companyId/dashboard"
+        element={
+          <ProtectedRoute>
+            <CompanyDashboard />
           </ProtectedRoute>
         }
       />
@@ -107,7 +116,7 @@ function AppRoutes() {
         }
       />
       <Route path="/" element={<Navigate to="/dashboard" />} />
-    </Routes>
+    </Routes >
   );
 }
 

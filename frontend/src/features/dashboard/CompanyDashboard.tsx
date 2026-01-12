@@ -1,8 +1,10 @@
+import { useNavigate, useParams } from 'react-router-dom';
 import { useState, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { Building2, CheckCircle, AlertCircle, Clock, Calendar } from 'lucide-react';
 import { getCurrentPeriod, getLastCompletedPeriod, PeriodInfo } from '../../lib/periods';
+import { useAuth } from '../auth/AuthContext';
 
 // Components
 import { StatCard } from '../../components/dashboard/StatCard';
@@ -12,13 +14,27 @@ import ActivityFeed from '../../components/dashboard/ActivityFeed';
 import StationsMap from '../../features/stations/StationsMap';
 
 export default function CompanyDashboard() {
+  const { user } = useAuth();
+  const { companyId } = useParams<{ companyId: string }>();
+  const activeCompanyId = companyId || user?.companyId;
+
   const [selectedPeriod, setSelectedPeriod] = useState<PeriodInfo>(getLastCompletedPeriod());
   const [chartFilter, setChartFilter] = useState<'ALL' | 'COMPLIANT' | 'NON_COMPLIANT'>('ALL');
 
-  // Fetch Data
+  // Fetch Stations (filtered by Company if reviewer, or implicitly by session if company)
+  // For Reviewer (Customs), we need to ensure the backend supports ?companyId=... or we rely on logic below.
+  // If activeCompanyId is set and we are Customs, we should probably pass it.
+  // But if we are Company User, we can just use the same endpoint.
+
   const { data: stations = [] } = useQuery({
-    queryKey: ['stations'],
-    queryFn: () => api.get('/stations').then((res) => res.data.stations),
+    queryKey: ['stations', activeCompanyId],
+    queryFn: () => {
+      // If we have an ID (Reviewer viewing specific company), pass it as query param
+      // Note: Backend needs to support this.
+      const url = activeCompanyId ? `/stations?companyId=${activeCompanyId}` : '/stations';
+      return api.get(url).then((res) => res.data.stations);
+    },
+    enabled: !!activeCompanyId || !!user
   });
 
   const { data: tasks = [] } = useQuery({
@@ -66,16 +82,14 @@ export default function CompanyDashboard() {
           <Calendar className="h-5 w-5 text-gray-500 ml-2" />
           <select
             className="bg-transparent border-none text-sm font-semibold text-gray-700 focus:ring-0 cursor-pointer"
-            value={selectedPeriod.label}
+            value={selectedPeriod.label === getCurrentPeriod().label ? 'CURRENT' : 'LAST'}
             onChange={(e) => {
-              // In a real app, looking up period by label is fragile, best to use ID. 
-              // Creating a dummy switch for demo purposes or just resetting to current/last.
-              if (e.target.value.includes('Current')) setSelectedPeriod(getCurrentPeriod());
+              if (e.target.value === 'CURRENT') setSelectedPeriod(getCurrentPeriod());
               else setSelectedPeriod(getLastCompletedPeriod());
             }}
           >
-            <option value={getLastCompletedPeriod().label}>{getLastCompletedPeriod().label} (Completed)</option>
-            <option value={getCurrentPeriod().label}>{getCurrentPeriod().label} (Current)</option>
+            <option value="LAST">{getLastCompletedPeriod().label} (Completed)</option>
+            <option value="CURRENT">{getCurrentPeriod().label} (Current)</option>
           </select>
         </div>
       </div>

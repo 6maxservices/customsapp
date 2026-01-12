@@ -124,7 +124,11 @@ export default function Layout({ children }: LayoutProps) {
             </div>
 
             <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-              {navigation.map((item) => {
+              {navigation.filter(item => {
+                // Reviewers hide Stations
+                if (user?.role === 'CUSTOMS_REVIEWER' && item.href === '/stations') return false;
+                return true;
+              }).map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
                 return (

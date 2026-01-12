@@ -66,6 +66,14 @@ export default function StationsPage() {
     });
   };
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/stations/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['stations'] });
+      setSelectedStations(new Set());
+    }
+  });
+
   // --- Filter Logic ---
   const filteredStations = useMemo(() => {
     if (!stations) return [];
@@ -326,7 +334,8 @@ export default function StationsPage() {
               </div>
             )}
 
-            {/* GRID VIEW */}
+
+
             {viewMode === 'grid' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {filteredStations.map((station: any) => (
@@ -335,6 +344,7 @@ export default function StationsPage() {
                     station={station}
                     selected={selectedStations.has(station.id)}
                     onSelect={toggleSelection}
+                    onDelete={(id) => deleteMutation.mutate(id)}
                   />
                 ))}
               </div>

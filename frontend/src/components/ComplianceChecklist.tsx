@@ -174,7 +174,11 @@ export default function ComplianceChecklist({
                                             {obligation.code}
                                         </span>
                                         {check && check.value && (
-                                            <CheckCircle className="h-4 w-4 text-green-600" />
+                                            (obligation.fieldType === 'BOOLEAN' && check.value === 'false') ? (
+                                                <AlertCircle className="h-4 w-4 text-red-600" />
+                                            ) : (
+                                                <CheckCircle className="h-4 w-4 text-green-600" />
+                                            )
                                         )}
                                     </div>
 

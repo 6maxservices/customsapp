@@ -73,6 +73,10 @@ export default function StationDetailPage() {
       setIsEditingMetadata(false);
       queryClient.invalidateQueries({ queryKey: ['station', id] });
     },
+    onError: (error) => {
+      console.error('Failed to update station:', error);
+      alert('Failed to update station. Please check your inputs and permissions.');
+    },
   });
 
   const handleEditMetadata = () => {
