@@ -89,9 +89,9 @@ export default function StationCard({ station, onSelect, onDelete, selected }: S
                             </span>
                         ))}
 
-                        {!isCompliant && station.compliance?.violations?.length > 0 && (
-                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-100" title={station.compliance!.violations.join('\n')}>
-                                {station.compliance!.violations.length} Violation{station.compliance!.violations.length !== 1 ? 's' : ''}
+                        {!isCompliant && (station.compliance?.violations?.length ?? 0) > 0 && (
+                            <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-red-50 text-red-700 border border-red-100" title={station.compliance?.violations?.join('\n')}>
+                                {station.compliance?.violations?.length} Violation{station.compliance?.violations?.length !== 1 ? 's' : ''}
                             </span>
                         )}
 
