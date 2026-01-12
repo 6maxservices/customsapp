@@ -31,13 +31,13 @@ This document tracks the resolution of feedback provided by the QA partner (revi
 ### 4. Visual Evidence
 
 **Unified Reviewer Dashboard**
-![Unified Dashboard](C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/reviewer_dashboard_unified_centered_1768179906541.png)
+![Unified Dashboard](./assets/unified_dashboard.png)
 
 **Company Drill-Down (Reviewer View)**
-![Company Dashboard](C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/company_dashboard_reviewer_view_1768179923119.png)
+![Company Dashboard](./assets/company_dashboard.png)
 
 **Station Management (Correct Badge & Filters)**
-![Stations List](C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/stations_list_filtered_company_view_1768180208447.png)
+![Stations List](./assets/stations_list.png)
 
 **Station Compliance (Red Alerts)**
-![Station Details](C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/station_detail_company_view_1768180163392.png)
+![Station Details](./assets/station_detail.png)

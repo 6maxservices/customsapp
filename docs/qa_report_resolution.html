@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,52 +15,63 @@
             padding: 40px;
             background-color: #fff;
         }
+
         h1 {
             color: #2c3e50;
             border-bottom: 2px solid #eee;
             padding-bottom: 10px;
         }
+
         h3 {
             color: #34495e;
             margin-top: 30px;
             border-left: 5px solid #3498db;
             padding-left: 10px;
         }
+
         table {
             width: 100%;
             border-collapse: collapse;
             margin: 20px 0;
             font-size: 14px;
         }
-        th, td {
+
+        th,
+        td {
             border: 1px solid #ddd;
             padding: 12px;
             text-align: left;
         }
+
         th {
             background-color: #f8f9fa;
             font-weight: 600;
         }
+
         tr:nth-child(even) {
             background-color: #f9f9f9;
         }
+
         .status-verified {
             color: #27ae60;
             font-weight: bold;
         }
+
         img {
             max-width: 100%;
             height: auto;
             border: 1px solid #ddd;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             margin: 20px 0;
             border-radius: 4px;
         }
+
         .evidence-section {
             margin-top: 40px;
             padding-top: 20px;
             border-top: 1px solid #eee;
         }
+
         .alert {
             background-color: #e8f6f3;
             color: #0e6251;
@@ -70,10 +82,11 @@
         }
     </style>
 </head>
+
 <body>
 
     <h1>QA Feedback Resolution Report</h1>
-    
+
     <div class="alert">
         <strong>Status:</strong> All items verified by QA partner (reviewer@customs.gov.gr).
     </div>
@@ -187,7 +200,8 @@
                 <td><strong>3.1 Home View</strong></td>
                 <td class="status-verified">Verified</td>
                 <td>P0</td>
-                <td><strong>Unified Dashboard</strong>: Successfully merged Stats/Map + Company List. Verified in browser.</td>
+                <td><strong>Unified Dashboard</strong>: Successfully merged Stats/Map + Company List. Verified in
+                    browser.</td>
             </tr>
             <tr>
                 <td><strong>3.2 Navigation</strong></td>
@@ -206,19 +220,20 @@
 
     <div class="evidence-section">
         <h3>4. Visual Evidence</h3>
-        
+
         <h4>Unified Reviewer Dashboard</h4>
-        <img src="C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/reviewer_dashboard_unified_centered_1768179906541.png" alt="Unified Dashboard">
+        <img src="./assets/unified_dashboard.png" alt="Unified Dashboard">
 
         <h4>Company Drill-Down (Reviewer View)</h4>
-        <img src="C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/company_dashboard_reviewer_view_1768179923119.png" alt="Company Dashboard">
+        <img src="./assets/company_dashboard.png" alt="Company Dashboard">
 
         <h4>Station Management (Correct Badge & Filters)</h4>
-        <img src="C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/stations_list_filtered_company_view_1768180208447.png" alt="Stations List">
+        <img src="./assets/stations_list.png" alt="Stations List">
 
         <h4>Station Compliance (Red Alerts)</h4>
-        <img src="C:/Users/JOE-HOME/.gemini/antigravity/brain/a904d5ee-e94d-455f-ac02-af936d0e044c/station_detail_company_view_1768180163392.png" alt="Station Details">
+        <img src="./assets/station_detail.png" alt="Station Details">
     </div>
 
 </body>
+
 </html>
