@@ -76,8 +76,25 @@ const authLimiter = rateLimit({
 app.use('/api/auth/login', authLimiter);
 
 // Health check
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
+app.get('/health', async (_req, res) => {
+  try {
+    // Basic connectivity check
+    await prisma.$queryRaw`SELECT 1`;
+    // Table exist check (optional but helpful)
+    const userCount = await prisma.user.count();
+    res.json({
+      status: 'ok',
+      database: 'connected',
+      userCount
+    });
+  } catch (error: any) {
+    console.error('Health check failed:', error);
+    res.status(503).json({
+      status: 'error',
+      database: 'disconnected',
+      error: config.nodeEnv === 'production' ? 'Database unavailable' : error.message
+    });
+  }
 });
 
 // Test endpoint for debugging
