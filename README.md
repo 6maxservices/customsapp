@@ -43,6 +43,7 @@ cd frontend && npm run dev
 - [MODULES.md](docs/MODULES.md) - Module responsibilities and APIs
 - [RUN_LOCAL.md](docs/RUN_LOCAL.md) - Setup and running instructions
 - [DEPLOYMENT.md](docs/DEPLOYMENT.md) - Production Vercel deployment and maintenance
+- **[AGENTS.md](docs/AGENTS.md)** - AI Operative Manual and project standards
 
 ## For AI Agents / Developers
 
