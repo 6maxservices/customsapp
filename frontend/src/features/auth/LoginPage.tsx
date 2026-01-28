@@ -49,6 +49,7 @@ export default function LoginPage() {
             Customs App Fuel
           </h2>
           <p className="mt-2 text-center text-sm text-gray-600">Συνδεθείτε στον λογαριασμό σας</p>
+          <p className="text-center text-[10px] text-gray-400 mt-1 uppercase tracking-widest">Version v1.0.1 • Latest Update: {new Date().toLocaleTimeString()}</p>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
