@@ -101,48 +101,46 @@ export default function LoginPage() {
             </button>
           </div>
         </form>
-        {import.meta.env.DEV && (
-          <div className="mt-8 pt-6 border-t border-gray-100">
-            <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 text-center">Development Users (Click to Fill)</h3>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button type="button" onClick={() => { setEmail('station@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
-                <div className="font-semibold text-gray-700">Station Operator</div>
-                <div className="text-gray-500">station@alpha.gr</div>
-              </button>
+        <div className="mt-8 pt-6 border-t border-gray-100">
+          <h3 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 text-center">Development Users (Click to Fill)</h3>
+          <div className="grid grid-cols-2 gap-2 text-xs">
+            <button type="button" onClick={() => { setEmail('station@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
+              <div className="font-semibold text-gray-700">Station Operator</div>
+              <div className="text-gray-500">station@alpha.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('admin@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
-                <div className="font-semibold text-gray-700">Company Admin</div>
-                <div className="text-gray-500">admin@alpha.gr</div>
-              </button>
+            <button type="button" onClick={() => { setEmail('admin@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
+              <div className="font-semibold text-gray-700">Company Admin</div>
+              <div className="text-gray-500">admin@alpha.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('user@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
-                <div className="font-semibold text-gray-700">Company Operator</div>
-                <div className="text-gray-500">user@alpha.gr</div>
-              </button>
+            <button type="button" onClick={() => { setEmail('user@alpha.gr'); setPassword('password123'); }} className="p-2 bg-gray-50 hover:bg-gray-100 rounded border text-left">
+              <div className="font-semibold text-gray-700">Company Operator</div>
+              <div className="text-gray-500">user@alpha.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('reviewer@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
-                <div className="font-semibold text-blue-800">Customs Reviewer</div>
-                <div className="text-blue-600">reviewer@customs.gov.gr</div>
-              </button>
+            <button type="button" onClick={() => { setEmail('reviewer@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
+              <div className="font-semibold text-blue-800">Customs Reviewer</div>
+              <div className="text-blue-600">reviewer@customs.gov.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('supervisor@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
-                <div className="font-semibold text-blue-800">Customs Supervisor</div>
-                <div className="text-blue-600">supervisor@customs.gov.gr</div>
-              </button>
+            <button type="button" onClick={() => { setEmail('supervisor@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
+              <div className="font-semibold text-blue-800">Customs Supervisor</div>
+              <div className="text-blue-600">supervisor@customs.gov.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('director@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
-                <div className="font-semibold text-blue-800">Customs Director</div>
-                <div className="text-blue-600">director@customs.gov.gr</div>
-              </button>
+            <button type="button" onClick={() => { setEmail('director@customs.gov.gr'); setPassword('password123'); }} className="p-2 bg-blue-50 hover:bg-blue-100 rounded border border-blue-100 text-left">
+              <div className="font-semibold text-blue-800">Customs Director</div>
+              <div className="text-blue-600">director@customs.gov.gr</div>
+            </button>
 
-              <button type="button" onClick={() => { setEmail('admin@system.gov.gr'); setPassword('password123'); }} className="col-span-2 p-2 bg-purple-50 hover:bg-purple-100 rounded border border-purple-100 text-left text-center">
-                <span className="font-semibold text-purple-800">System Admin: </span>
-                <span className="text-purple-600">admin@system.gov.gr</span>
-              </button>
-            </div>
-            <p className="text-center text-xs text-gray-400 mt-2">Password for all: password123</p>
+            <button type="button" onClick={() => { setEmail('admin@system.gov.gr'); setPassword('password123'); }} className="col-span-2 p-2 bg-purple-50 hover:bg-purple-100 rounded border border-purple-100 text-left text-center">
+              <span className="font-semibold text-purple-800">System Admin: </span>
+              <span className="text-purple-600">admin@system.gov.gr</span>
+            </button>
           </div>
-        )}
+          <p className="text-center text-xs text-gray-400 mt-2">Password for all: password123</p>
+        </div>
       </div>
     </div>
   );
