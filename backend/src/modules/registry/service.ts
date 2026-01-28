@@ -125,8 +125,12 @@ export class RegistryService {
       throw new NotFoundError('Station', id);
     }
 
-    // Check tenant access
-    if (actor.companyId !== station.companyId && !this.isCustomsUser(actor)) {
+    // Check tenant access - Strict for Station Users
+    if (actor.stationId) {
+      if (actor.stationId !== station.id) {
+        throw new PermissionError('Permission denied: You can only access your assigned station');
+      }
+    } else if (actor.companyId !== station.companyId && !this.isCustomsUser(actor)) {
       throw new PermissionError('Permission denied');
     }
 
@@ -143,8 +147,12 @@ export class RegistryService {
       throw new NotFoundError('Station', slug);
     }
 
-    // Check tenant access - security crucial here
-    if (actor.companyId !== station.companyId && !this.isCustomsUser(actor)) {
+    // Check tenant access - Strict for Station Users
+    if (actor.stationId) {
+      if (actor.stationId !== station.id) {
+        throw new PermissionError('Permission denied: You can only access your assigned station');
+      }
+    } else if (actor.companyId !== station.companyId && !this.isCustomsUser(actor)) {
       throw new PermissionError('Permission denied');
     }
 
@@ -181,6 +189,24 @@ export class RegistryService {
   }
 
   async getAllStations(actor: AuthenticatedUser) {
+    // 0. Station users see ONLY their station
+    if (actor.stationId) {
+      const station = await prisma.station.findUnique({
+        where: { id: actor.stationId },
+        include: {
+          company: true,
+          _count: {
+            select: { tasks: { where: { status: { not: TaskStatus.CLOSED } } } }
+          }
+        },
+      });
+      if (!station) return [];
+
+      const evaluator = new ComplianceEvaluator();
+      const compliance = await evaluator.evaluateStation(station.id);
+      return [{ ...station, compliance }];
+    }
+
     // Company users can only see their own stations
     if (actor.companyId) {
       return this.getStationsByCompany(actor.companyId, actor);
@@ -208,6 +234,7 @@ export class RegistryService {
 
     return stationsWithCompliance;
   }
+
 
   async createStation(input: CreateStationInput, actor: AuthenticatedUser) {
     // Check tenant access

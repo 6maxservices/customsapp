@@ -44,9 +44,12 @@ async function main() {
   const users = [
     { email: 'admin@alpha.gr', role: UserRole.COMPANY_ADMIN, companyId: alpha.id },
     { email: 'user@alpha.gr', role: UserRole.COMPANY_OPERATOR, companyId: alpha.id },
+    { email: 'station@alpha.gr', role: UserRole.STATION_OPERATOR, companyId: alpha.id }, // Station User (will link to station later)
     { email: 'admin@beta.gr', role: UserRole.COMPANY_ADMIN, companyId: beta.id },
     { email: 'user@beta.gr', role: UserRole.COMPANY_OPERATOR, companyId: beta.id },
     { email: 'reviewer@customs.gov.gr', role: UserRole.CUSTOMS_REVIEWER, companyId: null },
+    { email: 'supervisor@customs.gov.gr', role: UserRole.CUSTOMS_SUPERVISOR, companyId: null },
+    { email: 'director@customs.gov.gr', role: UserRole.CUSTOMS_DIRECTOR, companyId: null },
     { email: 'admin@system.gov.gr', role: UserRole.SYSTEM_ADMIN, companyId: null },
   ];
 
@@ -147,6 +150,12 @@ async function main() {
     createdStations.push(station);
   }
   console.log(`Created ${createdStations.length} stations`);
+
+  // Link Station User to the first Alpha Station
+  await prisma.user.update({
+    where: { email: 'station@alpha.gr' },
+    data: { stationId: createdStations[0].id }
+  });
 
   // 5. Generate Periods (36 Periods = 1 Year)
   // Assuming current date is Jan 2026. We generate for entire year of 2025.

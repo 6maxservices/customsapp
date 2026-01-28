@@ -180,8 +180,12 @@ export class SubmissionsService {
       throw new NotFoundError('Submission', id);
     }
 
-    // Check tenant access
-    if (actor.companyId !== submission.companyId && !this.isCustomsUser(actor)) {
+    // Check tenant access - Strict for Station Users
+    if (actor.stationId) {
+      if (actor.stationId !== submission.stationId) {
+        throw new PermissionError('Permission denied: You can only access your own submissions');
+      }
+    } else if (actor.companyId !== submission.companyId && !this.isCustomsUser(actor)) {
       throw new PermissionError('Permission denied');
     }
 
@@ -221,6 +225,19 @@ export class SubmissionsService {
   }
 
   async getAllSubmissions(actor: AuthenticatedUser) {
+    if (actor.stationId) {
+      return prisma.submission.findMany({
+        where: { stationId: actor.stationId },
+        include: {
+          period: true,
+          station: true,
+          submittedBy: true,
+          reviewedBy: true,
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+    }
+
     if (actor.companyId) {
       return prisma.submission.findMany({
         where: { companyId: actor.companyId },
@@ -245,6 +262,7 @@ export class SubmissionsService {
       orderBy: { createdAt: 'desc' },
     });
   }
+
 
   async createSubmission(input: CreateSubmissionInput, actor: AuthenticatedUser) {
     await this.getPeriodById(input.periodId);
@@ -347,19 +365,42 @@ export class SubmissionsService {
     });
 
     // 5. Create new DRAFT submission with copied checks
+    // 5. Create new DRAFT submission
+    // If we have previous submission, copy checks. If not, fetch ALL obligations for active catalog.
+
+    let checksCreateInput;
+
+    if (previousSubmission?.checks) {
+      checksCreateInput = previousSubmission.checks.map((check) => ({
+        obligationId: check.obligationId,
+        value: check.value,
+        notes: check.notes,
+      }));
+    } else {
+      // Fetch active catalog obligations
+      const catalog = await prisma.obligationCatalogVersion.findFirst({
+        orderBy: { effectiveDate: 'desc' },
+        include: { obligations: true }
+      });
+
+      if (catalog?.obligations) {
+        checksCreateInput = catalog.obligations.map(obl => ({
+          obligationId: obl.id,
+          value: '', // Empty by default
+          notes: ''
+        }));
+      }
+    }
+
     const submission = await prisma.submission.create({
       data: {
         periodId: period.id,
         stationId: station.id,
         companyId: station.companyId,
         status: SubmissionStatus.DRAFT,
-        checks: previousSubmission?.checks
+        checks: checksCreateInput
           ? {
-            create: previousSubmission.checks.map((check) => ({
-              obligationId: check.obligationId,
-              value: check.value,
-              notes: check.notes,
-            })),
+            create: checksCreateInput,
           }
           : undefined,
       },
@@ -421,6 +462,12 @@ export class SubmissionsService {
       throw new ValidationError('Only draft submissions can be submitted');
     }
 
+    // Validate that all checks are completed
+    const incompleteChecks = submission.checks.filter(c => !c.value || c.value.trim() === '');
+    if (incompleteChecks.length > 0) {
+      throw new ValidationError(`Cannot submit. ${incompleteChecks.length} checks are incomplete.`);
+    }
+
     const updated = await prisma.submission.update({
       where: { id },
       data: {
@@ -443,6 +490,45 @@ export class SubmissionsService {
       entityId: id,
       action: 'UPDATE',
       diff: { status: SubmissionStatus.SUBMITTED, submittedAt: updated.submittedAt },
+    });
+
+    return updated;
+  }
+
+  async recallSubmission(id: string, actor: AuthenticatedUser) {
+    const submission = await this.getSubmissionById(id, actor);
+
+    // Only company users can recall (for now)
+    if (this.isCustomsUser(actor)) {
+      throw new PermissionError('Customs users cannot recall submissions');
+    }
+
+    if (submission.status !== SubmissionStatus.SUBMITTED) {
+      throw new ValidationError('Only submitted (pending) submissions can be recalled');
+    }
+
+    const updated = await prisma.submission.update({
+      where: { id },
+      data: {
+        status: SubmissionStatus.DRAFT,
+        submittedAt: null,
+        submittedById: null,
+      },
+      include: {
+        period: true,
+        station: { include: { company: true } },
+        company: true,
+        checks: { include: { obligation: true } },
+      },
+    });
+
+    await this.auditLogger.log({
+      actorId: actor.id,
+      tenantId: submission.companyId,
+      entityType: 'Submission',
+      entityId: submission.id,
+      action: 'UPDATE',
+      diff: { status: 'RECALLED_TO_DRAFT' },
     });
 
     return updated;

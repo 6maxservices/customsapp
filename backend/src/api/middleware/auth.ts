@@ -92,6 +92,24 @@ export function checkTenantAccess(user: AuthenticatedUser, tenantId: string | nu
 }
 
 /**
+ * Helper to check if user has access to a specific station
+ */
+export function checkStationAccess(user: AuthenticatedUser, stationId: string): boolean {
+  // Customs can access all stations
+  if (authProvider.isCustomsUser(user)) return true;
+
+  // Station Operators can only access their specific station
+  if (user.role === UserRole.STATION_OPERATOR) {
+    return user.stationId === stationId;
+  }
+
+  // Company users can access any station in their company
+  // This requires a fetch in the service, but here we just check if they belong to A company
+  // (Specific company-station ownership is checked in the service layer)
+  return !!user.companyId;
+}
+
+/**
  * Get the current auth provider instance
  */
 export function getAuthProvider() {

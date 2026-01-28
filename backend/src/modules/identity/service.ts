@@ -46,6 +46,7 @@ export class IdentityService {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
     };
   }
 
@@ -64,6 +65,7 @@ export class IdentityService {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
     };
   }
 
@@ -90,6 +92,7 @@ export class IdentityService {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
       createdAt: user.createdAt,
     };
   }
@@ -114,9 +117,9 @@ export class IdentityService {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     };
   }
 }
-

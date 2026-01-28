@@ -32,7 +32,7 @@ export default function Layout({ children }: LayoutProps) {
     { name: commonText.dashboard, href: '/dashboard', icon: LayoutDashboard },
     { name: commonText.stations, href: '/stations', icon: Building2 },
     { name: commonText.submissions, href: '/submissions', icon: FileText },
-    { name: commonText.tasks, href: '/tasks', icon: CheckSquare },
+    { name: commonText.tasks, href: '/dashboard/tasks', icon: CheckSquare },
   ];
 
   const isActive = (path: string) => {
@@ -127,6 +127,13 @@ export default function Layout({ children }: LayoutProps) {
               {navigation.filter(item => {
                 // Reviewers hide Stations
                 if (user?.role === 'CUSTOMS_REVIEWER' && item.href === '/stations') return false;
+
+                // Station Users only see Dashboard (and maybe Profile/History if we add them)
+                // They should NOT see the global Stations or Submissions lists
+                if (user?.role === 'STATION_OPERATOR') {
+                  return ['/dashboard', '/dashboard/tasks'].includes(item.href);
+                }
+
                 return true;
               }).map((item) => {
                 const Icon = item.icon;

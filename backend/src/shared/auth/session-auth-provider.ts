@@ -39,6 +39,7 @@ export class SessionAuthProvider extends AuthProvider {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
     };
 
     return { success: true, user: authUser };
@@ -47,7 +48,7 @@ export class SessionAuthProvider extends AuthProvider {
   async getCurrentUser(req: unknown): Promise<AuthenticatedUser | null> {
     const expressReq = req as Request;
     const session = expressReq.session as SessionData & { userId?: string };
-    
+
     if (!session?.userId) {
       return null;
     }
@@ -66,6 +67,7 @@ export class SessionAuthProvider extends AuthProvider {
       email: user.email,
       role: user.role,
       companyId: user.companyId,
+      stationId: user.stationId,
     };
   }
 
@@ -81,7 +83,7 @@ export class SessionAuthProvider extends AuthProvider {
 
   hasTenantAccess(user: AuthenticatedUser | null, tenantId: string | null): boolean {
     if (!user) return false;
-    
+
     // Customs users can access all tenants
     if (this.isCustomsUser(user)) {
       return true;

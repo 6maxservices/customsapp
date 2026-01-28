@@ -5,6 +5,7 @@ export interface AuthenticatedUser {
   email: string;
   role: UserRole;
   companyId: string | null;
+  stationId: string | null;
 }
 
 export interface AuthResult {

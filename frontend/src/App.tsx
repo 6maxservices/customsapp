@@ -4,6 +4,9 @@ import { AuthProvider, useAuth } from './features/auth/AuthContext';
 import LoginPage from './features/auth/LoginPage';
 import CompanyDashboard from './features/dashboard/CompanyDashboard';
 import CustomsDashboard from './features/dashboard/CustomsDashboard';
+import StationDashboard from './features/dashboard/StationDashboard';
+import StationHistory from './features/dashboard/StationHistory';
+import StationTasks from './features/tasks/StationTasks';
 import StationsPage from './features/stations/StationsPage';
 import StationDetailPage from './features/stations/StationDetailPage';
 import SubmissionsPage from './features/submissions/SubmissionsPage';
@@ -34,12 +37,17 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/dashboard" />} />
+      <Route path="/dashboard" element={<Layout><StationDashboard /></Layout>} />
+      <Route path="/dashboard/history" element={<Layout><StationHistory /></Layout>} />
+      <Route path="/dashboard/tasks" element={<Layout><StationTasks /></Layout>} />
+      <Route path="/admin" element={<CompanyDashboard />} />
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             {user?.role.startsWith('COMPANY_') ? <CompanyDashboard /> :
-              <CustomsDashboard />}
+              user?.role === 'STATION_OPERATOR' ? <StationDashboard /> :
+                <CustomsDashboard />}
           </ProtectedRoute>
         }
       />

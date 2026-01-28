@@ -116,6 +116,15 @@ router.post('/submissions/:id/submit', requireAuth, enforceTenantIsolation, asyn
   }
 });
 
+router.post('/submissions/:id/recall', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const submission = await submissionsService.recallSubmission(req.params.id, req.user!);
+    return res.json({ submission });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.post('/submissions/:id/reopen', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const submission = await submissionsService.reopenSubmission(req.params.id, req.user!);
