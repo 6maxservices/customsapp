@@ -37,10 +37,6 @@ function AppRoutes() {
   return (
     <Routes>
       <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/dashboard" />} />
-      <Route path="/dashboard" element={<Layout><StationDashboard /></Layout>} />
-      <Route path="/dashboard/history" element={<Layout><StationHistory /></Layout>} />
-      <Route path="/dashboard/tasks" element={<Layout><StationTasks /></Layout>} />
-      <Route path="/admin" element={<CompanyDashboard />} />
       <Route
         path="/dashboard"
         element={
@@ -48,6 +44,22 @@ function AppRoutes() {
             {user?.role.startsWith('COMPANY_') ? <CompanyDashboard /> :
               user?.role === 'STATION_OPERATOR' ? <StationDashboard /> :
                 <CustomsDashboard />}
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/history"
+        element={
+          <ProtectedRoute>
+            <StationHistory />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/dashboard/tasks"
+        element={
+          <ProtectedRoute>
+            <StationTasks />
           </ProtectedRoute>
         }
       />
