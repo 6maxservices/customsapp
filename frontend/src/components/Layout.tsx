@@ -1,17 +1,13 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../features/auth/AuthContext';
 import {
-  LayoutDashboard,
-  Building2,
-  FileText,
-  CheckSquare,
   LogOut,
   Menu,
-  X,
 } from 'lucide-react';
 import { useState } from 'react';
 import { commonText, translateUserRole } from '../lib/translations';
 import { getCurrentPeriod } from '../lib/periods';
+import Sidebar from '../features/layout/Sidebar';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -19,27 +15,12 @@ interface LayoutProps {
 
 export default function Layout({ children }: LayoutProps) {
   const { user, logout } = useAuth();
-  const location = useLocation();
   const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const handleLogout = async () => {
     await logout();
     navigate('/login');
-  };
-
-  const navigation = [
-    { name: commonText.dashboard, href: '/dashboard', icon: LayoutDashboard },
-    { name: commonText.stations, href: '/stations', icon: Building2 },
-    { name: commonText.submissions, href: '/submissions', icon: FileText },
-    { name: commonText.tasks, href: '/dashboard/tasks', icon: CheckSquare },
-  ];
-
-  const isActive = (path: string) => {
-    if (path === '/dashboard') {
-      return location.pathname === '/dashboard';
-    }
-    return location.pathname.startsWith(path);
   };
 
   return (
@@ -98,69 +79,9 @@ export default function Layout({ children }: LayoutProps) {
 
       {/* 2. Main Layout Container (Offset for header) */}
       <div className="flex flex-1 pt-20">
+        <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        {/* Mobile Sidebar Backdrop */}
-        {sidebarOpen && (
-          <div
-            className="fixed inset-0 bg-gray-900 bg-opacity-50 z-40 lg:hidden"
-            onClick={() => setSidebarOpen(false)}
-          />
-        )}
-
-        {/* Sidebar */}
-        <aside
-          className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r border-gray-200 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-auto lg:top-20 lg:bottom-0 
-              ${sidebarOpen ? 'translate-x-0 bottom-0 top-0 pt-0' : '-translate-x-full lg:h-[calc(100vh-5rem)]'}
-            `}
-          style={sidebarOpen ? { paddingTop: 0 } : {}}
-        >
-          <div className="flex flex-col h-full lg:h-[calc(100vh-5rem)]">
-            {/* Mobile Header in Sidebar */}
-            <div className="lg:hidden flex items-center justify-between h-20 px-6 border-b border-gray-200 bg-gray-50">
-              <span className="font-bold text-lg text-gray-900">Menu</span>
-              <button onClick={() => setSidebarOpen(false)}>
-                <X className="h-6 w-6 text-gray-500" />
-              </button>
-            </div>
-
-            <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
-              {navigation.filter(item => {
-                // Reviewers hide Stations
-                if (user?.role === 'CUSTOMS_REVIEWER' && item.href === '/stations') return false;
-
-                // Station Users only see Dashboard (and maybe Profile/History if we add them)
-                // They should NOT see the global Stations or Submissions lists
-                if (user?.role === 'STATION_OPERATOR') {
-                  return ['/dashboard', '/dashboard/tasks'].includes(item.href);
-                }
-
-                return true;
-              }).map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    onClick={() => setSidebarOpen(false)}
-                    className={`flex items-center px-4 py-3 text-sm font-medium rounded-md transition-colors group border-l-4 ${active
-                      ? 'bg-blue-50 text-aade-primary border-aade-accent shadow-sm'
-                      : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900 border-transparent'
-                      }`}
-                  >
-                    <Icon className={`mr-3 h-5 w-5 ${active ? 'text-aade-accent' : 'text-gray-400 group-hover:text-gray-500'}`} />
-                    {item.name}
-                  </Link>
-                );
-              })}
-            </nav>
-
-            {/* Footer */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <p className="text-[10px] text-center text-gray-500">v1.2.0 Beta • FuelGuard © 2026</p>
-            </div>
-          </div>
-        </aside>
+        {/* Main Content Area */}
 
         {/* Main Content Area */}
         <main className="flex-1 bg-bg-screen min-h-[calc(100vh-5rem)] w-full">

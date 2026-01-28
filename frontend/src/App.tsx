@@ -135,6 +135,51 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* New Placeholder Routes */}
+      <Route
+        path="/audit/map"
+        element={
+          <ProtectedRoute>
+            <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-bold text-aade-primary mb-2">Εθνικός Χάρτης</h2>
+              <p className="text-gray-500 italic">Η λειτουργία του χάρτη βρίσκεται υπό κατασκευή.</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/audit/queue"
+        element={
+          <ProtectedRoute>
+            <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-bold text-aade-primary mb-2">Ουρά Ελέγχου</h2>
+              <p className="text-gray-500 italic">Η ουρά ελέγχου θα υλοποιηθεί στο WF-04.</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings/users"
+        element={
+          <ProtectedRoute>
+            <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-bold text-aade-primary mb-2">Διαχείριση Χρηστών</h2>
+              <p className="text-gray-500 italic">Η διαχείριση χρηστών βρίσκεται υπό κατασκευή.</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-gray-100">
+              <h2 className="text-2xl font-bold text-aade-primary mb-2">Ρυθμίσεις Συστήματος</h2>
+              <p className="text-gray-500 italic">Οι ρυθμίσεις συστήματος θα υλοποιηθούν σύντομα.</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
       <Route path="/" element={<Navigate to="/dashboard" />} />
     </Routes >
   );
