@@ -74,11 +74,16 @@ export class DashboardService {
                     return acc;
                 }, {} as Record<string, any>)
             } : undefined,
-            currentPeriod: {
-                id: currentPeriod?.id || 'current',
+            currentPeriod: currentPeriod ? {
+                id: currentPeriod.id,
                 start: currentPeriod.startDate,
                 end: currentPeriod.endDate,
                 deadline: currentPeriod.deadlineDate
+            } : {
+                id: 'none',
+                start: new Date(),
+                end: new Date(),
+                deadline: new Date()
             },
             currentSubmission: activeSubmission ? {
                 id: activeSubmission.id,
@@ -98,7 +103,15 @@ export class DashboardService {
                     type: t.severity === 'CRITICAL' ? 'ERROR' : 'WARNING',
                     message: `Ticket: ${t.title}`
                 })),
-                { id: '1', type: 'INFO', message: `Deadline for current period is in ${Math.ceil((currentPeriod.deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days` }
+                ...(currentPeriod ? [{
+                    id: 'deadline',
+                    type: 'INFO' as const,
+                    message: `Deadline for current period is in ${Math.ceil((currentPeriod.deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24))} days`
+                }] : [{
+                    id: 'no-period',
+                    type: 'ERROR' as const,
+                    message: 'No active submission period found. System initialization required.'
+                }])
             ]
         };
     }

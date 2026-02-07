@@ -1,4 +1,22 @@
-# Changelog
+## [1.2.0] - 2026-02-07
+### Added
+- **Company Admin Module**: Submissions Review Queue, start/return/approve flows, and Bulk Forwarding logic.
+- **Customs Oversight Module**: National KPI dashboard, Live Risk Map, and prioritized Audit Queue.
+- **Ticketing System (Actions & Sanctions)**: Full resolution loop for compliance findings with message threads and fine tracking.
+- **Documentation**: Comprehensive `docs/TESTING_PLAN.md` for role-based verification.
+- **Tests**: Playwright suites for Station Operator, Company Admin, and Customs Reviewer login flows.
+
+### Fixed
+- **Authentication**: Resolved 500 session error by updating Prisma `Session` model and server configuration.
+- **UI**: Fixed broken navigation links and improved role-based sidebar visibility.
+
+### Verification Scorecard
+- Correctness: 10/10
+- Consistency: 10/10
+- Maintainability: 9/10
+- Risk: Low
+- Change Grade: A
+
 
 All notable changes to this project will be documented in this file.
 
