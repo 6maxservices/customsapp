@@ -62,6 +62,23 @@
 
 **API**: `/api/reports/*`
 
+### Company Workflow Module (`modules/company/`)
+- Aggregated Dashboard (KPIs, Map data)
+- Submission Review Queue (Inbox)
+- Review Actions (Start Review, Return, Approve)
+- Forwarding (Single & Bulk with edge-cases)
+- Deadline Enforcement (MissingSubmission job)
+
+**API**: `/api/company/*`
+
+### Oversight Module (`modules/oversight/`)
+- Customs Dashboard (BI, Heatmap)
+- Audit Queue Sorting (Risk Engine)
+- Risk Scoring Logic
+- Violations Feed
+
+**API**: `/api/oversight/*`
+
 ## Module Dependencies
 
 ```

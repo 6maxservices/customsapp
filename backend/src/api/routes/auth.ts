@@ -13,7 +13,7 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction) =>
   try {
     console.log(`Login attempt for email: "${req.body?.email}" (length: ${req.body?.email?.length ?? 0})`);
     const validated = loginSchema.parse(req.body);
-    const user = await identityService.login(validated);
+    const user = await identityService.login(validated as any);
 
     // Set session
     (req.session as any).userId = user.id;

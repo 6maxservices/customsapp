@@ -96,6 +96,11 @@ model User {
   taskMessages       TaskMessage[]
   evidence           Evidence[]
   auditLogs          AuditLog[]
+  
+  // New Workflow Relations
+  decidedSubmissions   Submission[]      @relation("CompanyDecider")
+  forwardedSubmissions Submission[]      @relation("Forwarder")
+  createdBulkBatches   BulkForwardBatch[]
 
   @@index([companyId])
   @@index([stationId])
@@ -114,6 +119,10 @@ model Company {
   users      User[]
   stations   Station[]
   submissions Submission[]
+  
+  // New Workflow Relations
+  missingSubmissions MissingSubmission[]
+  bulkForwardBatches BulkForwardBatch[]
 
   @@index([taxId])
 }
@@ -132,6 +141,7 @@ model Station {
   lng       Float?
   slug      String?  @unique
   isActive  Boolean  @default(true)
+  riskScore Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -140,6 +150,10 @@ model Station {
   submissions Submission[]
   tasks       Task[]
   evidence    Evidence[]
+  
+  // New Workflow Relations
+  missingSubmissions MissingSubmission[]
+  bulkForwardItems   BulkForwardItem[]
 
   @@index([companyId])
   @@index([lat, lng])
@@ -196,7 +210,9 @@ model SubmissionPeriod {
   createdAt   DateTime @default(now())
 
   // Relations
-  submissions Submission[]
+  submissions        Submission[]
+  missingSubmissions MissingSubmission[]
+  bulkForwardBatches BulkForwardBatch[]
 
   @@unique([periodNumber, month, year])
   @@index([startDate, endDate])
@@ -221,11 +237,26 @@ model Submission {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
 
+
   // Relations
   checks  SubmissionCheck[]
   tasks   Task[]   @relation("TaskOrigin")
   resolvingTasks Task[] @relation("TaskResolution")
   evidence Evidence[]
+  bulkItems BulkForwardItem[]
+
+  // Company Decision
+  companyDecisionAt   DateTime?
+  companyDecisionById String?
+  companyDecisionBy   User?     @relation("CompanyDecider", fields: [companyDecisionById], references: [id])
+  returnReason        String?
+
+  // Forwarding
+  forwardedAt                 DateTime?
+  forwardedById               String?
+  forwardedBy                 User?     @relation("Forwarder", fields: [forwardedById], references: [id])
+  forwardedWithoutStationSubmit Boolean @default(false)
+  forwardingExplanation       String?
 
   @@unique([periodId, stationId])
   @@index([periodId])
@@ -271,6 +302,9 @@ model Task {
   type         TaskType     @default(ACTION)
   category     TaskCategory @default(OTHER)
   severity     TaskSeverity @default(MAJOR)
+  
+  // Sanctions
+  fineAmount   Float?
 
   title        String
   description  String?
@@ -350,8 +384,51 @@ model AuditLog {
 }
 
 model Session {
-  id        String   @id
+  id        String   @id @default(uuid())
   sid       String   @unique
   data      String
   expiresAt   DateTime
+}
+
+model MissingSubmission {
+  id        String   @id @default(uuid())
+  periodId  String
+  period    SubmissionPeriod @relation(fields: [periodId], references: [id])
+  stationId String
+  station   Station  @relation(fields: [stationId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+  reason    String   @default("NO_STATION_SUBMISSION")
+  
+  @@unique([periodId, stationId])
+  @@index([companyId])
+}
+
+model BulkForwardBatch {
+  id          String   @id @default(uuid())
+  companyId   String
+  company     Company  @relation(fields: [companyId], references: [id])
+  periodId    String
+  period      SubmissionPeriod @relation(fields: [periodId], references: [id])
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  mode        String   
+  summaryJson String?  
+  
+  items       BulkForwardItem[]
+}
+
+model BulkForwardItem {
+  id        String   @id @default(uuid())
+  batchId   String
+  batch     BulkForwardBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  stationId String
+  station   Station @relation(fields: [stationId], references: [id])
+  submissionId String?
+  submission   Submission? @relation(fields: [submissionId], references: [id])
+  resultStatus String 
+  message      String?
+  usedExplanation String?
 }

@@ -15,6 +15,8 @@ import deadlinesRoutes from './api/routes/deadlines';
 import auditRoutes from './api/routes/audit';
 import reportingRoutes from './api/routes/reporting';
 import dashboardRoutes from './api/routes/dashboard';
+import companyRoutes from './api/routes/company';
+import oversightRoutes from './api/routes/oversight';
 
 const app = express();
 
@@ -52,7 +54,7 @@ app.use(
       prisma,
       {
         checkPeriod: 2 * 60 * 1000, //count to clean expired sessions
-        dbRecordIdIsSessionId: true,
+        dbRecordIdIsSessionId: false,
         dbRecordIdFunction: undefined,
       }
     ),
@@ -117,7 +119,10 @@ app.use('/api', evidenceRoutes);
 app.use('/api', deadlinesRoutes);
 app.use('/api', auditRoutes);
 app.use('/api', reportingRoutes);
+app.use('/api', reportingRoutes);
 app.use('/api', dashboardRoutes);
+app.use('/api/company', companyRoutes);
+app.use('/api/oversight', oversightRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

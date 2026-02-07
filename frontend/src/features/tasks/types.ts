@@ -21,6 +21,7 @@ export interface TaskMessage {
 export interface Task {
     id: string;
     title: string;
+    fineAmount?: number;
     description: string | null;
     type: TaskType;
     category: TaskCategory;

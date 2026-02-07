@@ -49,12 +49,13 @@ export abstract class AuthProvider {
    */
   isCustomsUser(user: AuthenticatedUser | null): boolean {
     if (!user) return false;
-    return [
+    const customsRoles = new Set<UserRole>([
       UserRole.CUSTOMS_REVIEWER,
       UserRole.CUSTOMS_SUPERVISOR,
       UserRole.CUSTOMS_DIRECTOR,
       UserRole.SYSTEM_ADMIN,
-    ].includes(user.role);
+    ]);
+    return customsRoles.has(user.role);
   }
 
   /**

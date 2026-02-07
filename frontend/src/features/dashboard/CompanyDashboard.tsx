@@ -26,36 +26,38 @@ export default function CompanyDashboard() {
   // If activeCompanyId is set and we are Customs, we should probably pass it.
   // But if we are Company User, we can just use the same endpoint.
 
+  // Fetch Dashboard Stats (Aggregated)
+  const { data: dashboardStats } = useQuery({
+    queryKey: ['company-stats', activeCompanyId],
+    queryFn: () => api.get('/company/dashboard').then((res) => res.data),
+    enabled: !!activeCompanyId || !!user
+  });
+
   const { data: stations = [] } = useQuery({
     queryKey: ['stations', activeCompanyId],
     queryFn: () => {
-      // If we have an ID (Reviewer viewing specific company), pass it as query param
-      // Note: Backend needs to support this.
       const url = activeCompanyId ? `/stations?companyId=${activeCompanyId}` : '/stations';
       return api.get(url).then((res) => res.data.stations);
     },
     enabled: !!activeCompanyId || !!user
   });
 
-  const { data: tasks = [] } = useQuery({
-    queryKey: ['tasks'],
-    queryFn: () => api.get('/tasks').then((res) => res.data.tasks),
-  });
 
-  // Since we don't have a real API for historical snapshots per period yet,
-  // we will simulate the "Period Filter" by assuming the current status is relevant 
-  // but logically we would filter `submissions` by periodId.
-  // For the MVP demonstration of the UI, we use the current station compliance status.
 
-  // BI Metrics Calculation
+  // BI Metrics from Backend
   const metrics = useMemo(() => {
-    const total = stations.length;
-    const compliant = stations.filter((s: any) => s.compliance?.status === 'COMPLIANT').length;
-    const nonCompliant = stations.filter((s: any) => s.compliance?.status !== 'COMPLIANT').length;
-    const pendingTasks = tasks.filter((t: any) => t.status === 'OPEN').length;
+    if (dashboardStats?.stats) {
+      return {
+        total: dashboardStats.totalStations,
+        compliant: dashboardStats.stats.approved, // Simplification: Approved = Compliant for now
+        nonCompliant: dashboardStats.stats.missing + dashboardStats.stats.rejected, // Missing/Rejected = Non-Compliant
+        pendingTasks: dashboardStats.stats.submitted + dashboardStats.stats.underReview // Pending = In Review Loop
+      };
+    }
 
-    return { total, compliant, nonCompliant, pendingTasks };
-  }, [stations, tasks]);
+    // Fallback if stats fail or loading
+    return { total: 0, compliant: 0, nonCompliant: 0, pendingTasks: 0 };
+  }, [dashboardStats]);
 
   // Filtered Stations for Map & List (based on Chart interaction)
   const filteredStations = useMemo(() => {

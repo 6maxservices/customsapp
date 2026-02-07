@@ -37,7 +37,7 @@ router.get('/companies/:id', requireAuth, async (req: Request, res: Response) =>
 router.post('/companies', requireAuth, async (req: Request, res: Response) => {
   try {
     const validated = createCompanySchema.parse(req.body);
-    const company = await registryService.createCompany(validated, req.user!);
+    const company = await registryService.createCompany(validated as any, req.user!);
     return res.status(201).json({ company });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -50,7 +50,7 @@ router.post('/companies', requireAuth, async (req: Request, res: Response) => {
 router.put('/companies/:id', requireAuth, async (req: Request, res: Response) => {
   try {
     const validated = updateCompanySchema.parse(req.body);
-    const company = await registryService.updateCompany(req.params.id, validated, req.user!);
+    const company = await registryService.updateCompany(req.params.id, validated as any, req.user!);
     return res.json({ company });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -104,7 +104,7 @@ router.get('/companies/:companyId/stations', requireAuth, enforceTenantIsolation
 router.post('/stations', requireAuth, enforceTenantIsolation, async (req: Request, res: Response) => {
   try {
     const validated = createStationSchema.parse(req.body);
-    const station = await registryService.createStation(validated, req.user!);
+    const station = await registryService.createStation(validated as any, req.user!);
     return res.status(201).json({ station });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -117,7 +117,7 @@ router.post('/stations', requireAuth, enforceTenantIsolation, async (req: Reques
 router.put('/stations/:id', requireAuth, enforceTenantIsolation, async (req: Request, res: Response) => {
   try {
     const validated = updateStationSchema.parse(req.body);
-    const station = await registryService.updateStation(req.params.id, validated, req.user!);
+    const station = await registryService.updateStation(req.params.id, validated as any, req.user!);
     return res.json({ station });
   } catch (error) {
     if (error instanceof z.ZodError) {

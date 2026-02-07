@@ -47,7 +47,7 @@ export class SessionAuthProvider extends AuthProvider {
 
   async getCurrentUser(req: unknown): Promise<AuthenticatedUser | null> {
     const expressReq = req as Request;
-    const session = expressReq.session as SessionData & { userId?: string };
+    const session = expressReq.session as any;
 
     if (!session?.userId) {
       return null;

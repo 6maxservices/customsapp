@@ -1,7 +1,7 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { TasksService } from '../../modules/tasks/service';
-import { createTaskSchema, updateTaskSchema, createTaskMessageSchema } from '../../modules/tasks/validation';
+import { createTaskSchema, updateTaskSchema, updateTaskStatusSchema, createTaskMessageSchema } from '../../modules/tasks/validation';
 import { requireAuth, enforceTenantIsolation } from '../middleware/auth';
 
 const router = Router();
@@ -37,7 +37,7 @@ router.get('/submissions/:submissionId/tasks', requireAuth, enforceTenantIsolati
 router.post('/tasks', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validated = createTaskSchema.parse(req.body);
-    const task = await tasksService.createTask(validated, req.user!);
+    const task = await tasksService.createTask(validated as any, req.user!);
     res.status(201).json({ task });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -49,8 +49,8 @@ router.post('/tasks', requireAuth, enforceTenantIsolation, async (req: Request, 
 
 router.put('/tasks/:id', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const validated = updateTaskSchema.parse(req.body);
-    const task = await tasksService.updateTask(req.params.id, validated, req.user!);
+    const validated = updateTaskStatusSchema.parse(req.body);
+    const task = await tasksService.updateTaskStatus(req.params.id, validated as any, req.user!);
     res.json({ task });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -72,7 +72,7 @@ router.get('/tasks/:id/messages', requireAuth, enforceTenantIsolation, async (re
 router.post('/tasks/:id/messages', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validated = createTaskMessageSchema.parse(req.body);
-    const message = await tasksService.addTaskMessage(req.params.id, validated, req.user!);
+    const message = await tasksService.addTaskMessage(req.params.id, validated as any, req.user!);
     res.status(201).json({ message });
   } catch (error) {
     if (error instanceof z.ZodError) {

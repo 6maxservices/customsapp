@@ -19,6 +19,10 @@ export const updateTaskSchema = z.object({
   assignedToId: z.string().uuid('Invalid user ID').optional(),
 });
 
+export const updateTaskStatusSchema = z.object({
+  status: z.nativeEnum(TaskStatus),
+});
+
 export const createTaskMessageSchema = z.object({
   content: z.string().min(1, 'Content is required'),
 });

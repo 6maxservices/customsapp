@@ -32,41 +32,102 @@ This document serves as the **Single Source of Truth** for all user workflows wi
 
 ---
 
-## WF-03: Company Compliance Oversight
-**Description**: Allows Company Admins to monitor the submission status of their entire station network.
+## WF-03: Company Compliance Overview (Aggregated)
+**Description**: The umbrella workflow for Company Admins to monitor, review, approve, and forward station submissions to Customs.
 
-1.  **View**: `CompanyDashboard.tsx` (Map + List grid).
-2.  **Actions**:
-    *   Filter stations by status (e.g., "Missing Submissions").
-    *   View all active Tasks/Sanctions across the network.
-    *   Drill down into any specific station's history.
-3.  **Outcome**: Admin identifies risk and follows up with lagging operators.
+### WF-03.1: Dashboard & Monitoring
+1.  **View**: `CompanyDashboard.tsx` acts as the control tower.
+2.  **Key Metrics**:
+    *   **Waiting Review**: Submissions in `SUBMITTED` state.
+    *   **In Review**: Submissions in `UNDER_REVIEW`.
+    *   **Approved**: Submissions ready for forwarding (`APPROVED`).
+    *   **Returned**: Submissions sent back for correction (tracked via audit).
+    *   **Forwarded**: Submissions successfully sent to Customs (`forwardedAt != null`).
+    *   **Missing**: Stations that missed the deadline (`MissingSubmission` alerts).
+
+### WF-03.2: Submission Review Loop
+**Goal**: Verify data quality before Customs sees it.
+1.  **Trigger**: Submission enters `SUBMITTED` state.
+2.  **Review Steps**:
+    *   Admin selects item from Inbox (`/api/company/submissions/inbox`).
+    *   **Start Review**: Status -> `UNDER_REVIEW`.
+    *   **Return for Correction**:
+        *   Business Meaning: "Requires Clarification".
+        *   System Action: Status -> `DRAFT`.
+        *   Requirement: Mandatory `returnReason`.
+        *   Outcome: Station Operator receives notification, edits, and re-submits.
+    *   **Approve**:
+        *   Status -> `APPROVED`.
+        *   System sets `companyDecisionAt` and `companyDecisionById`.
+        *   Outcome: Submission is ready for forwarding.
+
+### WF-03.3: Forwarding to Customs
+**Goal**: Official handover of compliance data to the authority.
+1.  **Single Forward**:
+    *   Prerequisite: Status MUST be `APPROVED`.
+    *   Edge Case: Can forward without station submission if `forwardedWithoutStationSubmit=true` AND `forwardingExplanation` is provided.
+    *   Outcome: Sets `forwardedAt`. Locks submission from further Company changes.
+2.  **Bulk Forward**:
+    *   Input: `periodId`, list of `stationIds`, and `mode`.
+    *   **Mode A: ONLY_APPROVED**: Forwards only unrelated, approved submissions.
+    *   **Mode B: INCLUDE_EDGE_CASES (Strict)**:
+        *   Forwards approved submissions normally.
+        *   For edge cases (missing/not approved), requires a **per-station explanation**.
+        *   If explanation missing -> Individual station fails/skips (does not block batch).
+
+### WF-03.4: Deadline Enforcement
+1.  **Rule**: Deadline is `endDate` at 23:59:59 (Europe/Athens).
+2.  **Job**: `WF-FC10` Scheduled Task runs after deadline.
+3.  **Action**:
+    *   Checks for stations without `SUBMITTED` or `APPROVED` submission.
+    *   Creates `MissingSubmission` record.
+    *   Alerts Company Admin on Dashboard.
 
 ---
 
-## WF-04: Customs Audit & Review
-**Description**: The oversight process where Customs officers validate submitted data.
+## WF-04: Customs Audit & Oversight
+**Description**: The risk-based oversight process for Customs Reviewers.
 
-1.  **Trigger**: Submission enters `SUBMITTED` state.
-2.  **Steps**:
-    *   Auditor picks item from `AuditQueue` on `CustomsDashboard`.
-    *   Reviews evidence files on `SubmissionDetailPage`.
-    *   Decision:
-        *   **Approve**: Status -> `APPROVED`.
-        *   **Reject**: Status -> `REJECTED`, opens `WF-05`.
-        *   **Clarify**: Status -> `REQUIRES_CLARIFICATION`.
+### WF-04.1: National Command Center (BI)
+1.  **View**: `CustomsDashboard.tsx`
+2.  **Visuals**:
+    *   **Live Risk Map**: Heatmap of non-compliance across Greece.
+    *   **KPIs**: Approved vs. Pending vs. Late submissions.
+    *   **Ticker**: Real-time violation alerts.
+
+### WF-04.2: Audit Queue
+1.  **Trigger**: Submission forwarded by Company (WF-03).
+2.  **Prioritization**:
+    *   **High Priority**: Risk Score > 80 or Reported Violation.
+    *   **Medium Priority**: Late Submissions.
+    *   **Low Priority**: Random sampling.
+3.  **Actions**:
+    *   **Verify**: Check evidence matches values.
+    *   **Issue Finding**: Create Task (WF-05).
+    *   **Close Audit**: Mark submission as `AUDITED`.
 
 ---
 
 ## WF-05: Task & Sanction Management (Ticketing)
-**Description**: The communication loop used to resolve compliance issues or issue formal sanctions.
+**Description**: The "Case Management" system for compliance issues and fines.
 
-1.  **Trigger**: Audit rejection or safety violation detection.
-2.  **Flow**:
-    *   Auditor creates Task linked to a Station/Submission.
-    *   Operator receives notification in "My Tasks".
-    *   Operator replies or uploads corrected evidence in `TaskDetailPage.tsx`.
-    *   Auditor verifies and closes the task.
+### WF-05.1: Case Creation
+1.  **Trigger**: Audit finding or Ad-hoc violation.
+2.  **Types**:
+    *   **Corrective Action**: "Fix Equipment" (Has Deadline).
+    *   **Sanction**: "Fine for Non-Compliance" (Has Document).
+3.  **Document Generation**:
+    *   System generates a provisional "Notice of Violation" PDF.
+    *   Document is attached to the Task.
+
+### WF-05.2: Resolution Loop
+1.  **Notification**: Company Admin alerted.
+2.  **Response**:
+    *   Company uploads counter-evidence or proof of fix.
+    *   Writes comment in Task Thread.
+3.  **Adjudication**:
+    *   Customs Reviewer accepts proof -> **Closes Case**.
+    *   Customs Reviewer rejects proof -> **Escalates/Reopens**.
 
 ---
 

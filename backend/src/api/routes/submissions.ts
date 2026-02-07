@@ -97,7 +97,7 @@ router.get('/periods/:periodId/submissions', requireAuth, enforceTenantIsolation
 router.post('/submissions', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validated = createSubmissionSchema.parse(req.body);
-    const submission = await submissionsService.createSubmission(validated, req.user!);
+    const submission = await submissionsService.createSubmission(validated as any, req.user!);
     return res.status(201).json({ submission });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -137,7 +137,7 @@ router.post('/submissions/:id/reopen', requireAuth, enforceTenantIsolation, asyn
 router.put('/submissions/:id/status', requireAuth, enforceTenantIsolation, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const validated = updateSubmissionStatusSchema.parse(req.body);
-    const submission = await submissionsService.updateSubmissionStatus(req.params.id, validated, req.user!);
+    const submission = await submissionsService.updateSubmissionStatus(req.params.id, validated as any, req.user!);
     return res.json({ submission });
   } catch (error) {
     if (error instanceof z.ZodError) {
@@ -166,7 +166,7 @@ router.put('/submissions/:submissionId/checks', requireAuth, enforceTenantIsolat
     const validated = createSubmissionCheckSchema.parse(req.body);
     const check = await submissionsService.createOrUpdateSubmissionCheck(
       req.params.submissionId,
-      validated,
+      validated as any,
       req.user!
     );
     return res.json({ check });

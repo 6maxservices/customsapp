@@ -81,7 +81,7 @@ Frontend runs on http://localhost:3000
 
 All demo users have password: `password123`
 
-- **Company Admin (Alpha)**: admin@alpha.com
+- **Company Admin (Alpha)**: admin@alpha.gr
 - **Company Operator (Alpha)**: operator@alpha.com
 - **Company Admin (Beta)**: admin@beta.com
 - **Company Operator (Beta)**: operator@beta.com

@@ -33,7 +33,9 @@ backend/src/modules/
 ├── registry/        # Companies, Stations
 ├── obligations/     # FEK catalog (versioned)
 ├── submissions/     # 10-day cycles, checklist data
-├── tasks/           # Clarification tasks & messaging
+├── company/         # Company Admin workflows (Forwarding, Review)
+├── oversight/       # Customs BI, Risk Map, Audit Queue
+├── tasks/           # Action & Sanction ticketing
 ├── deadlines/       # Expiration engine
 ├── evidence/        # File metadata & storage
 └── reporting/       # Export generation

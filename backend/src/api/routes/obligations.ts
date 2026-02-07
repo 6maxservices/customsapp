@@ -47,7 +47,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = createCatalogVersionSchema.parse(req.body);
-      const version = await obligationsService.createCatalogVersion(validated, req.user!);
+      const version = await obligationsService.createCatalogVersion(validated as any, req.user!);
       res.status(201).json({ version });
     } catch (error) {
       if (error instanceof z.ZodError) {
@@ -99,7 +99,7 @@ router.post(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const validated = createObligationSchema.parse(req.body);
-      const obligation = await obligationsService.createObligation(validated, req.user!);
+      const obligation = await obligationsService.createObligation(validated as any, req.user!);
       res.status(201).json({ obligation });
     } catch (error) {
       if (error instanceof z.ZodError) {

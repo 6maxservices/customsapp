@@ -90,12 +90,13 @@ export class ReportingService {
   }
 
   private isCustomsUser(actor: AuthenticatedUser): boolean {
-    return [
+    const customsRoles = new Set<UserRole>([
       UserRole.CUSTOMS_REVIEWER,
       UserRole.CUSTOMS_SUPERVISOR,
       UserRole.CUSTOMS_DIRECTOR,
       UserRole.SYSTEM_ADMIN,
-    ].includes(actor.role);
+    ]);
+    return customsRoles.has(actor.role);
   }
 }
 

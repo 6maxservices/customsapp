@@ -29,6 +29,7 @@ export class TasksService {
   constructor() {
     console.log('TasksService V2 Loaded - Relations Fixed');
   }
+
   async getTaskById(id: string, actor: AuthenticatedUser) {
     const task = await prisma.task.findUnique({
       where: { id },
@@ -120,17 +121,88 @@ export class TasksService {
     });
   }
 
-  // ... (getTasksBySubmission remains same)
+  async getTasksBySubmission(submissionId: string, actor: AuthenticatedUser) {
+    const submission = await prisma.submission.findUnique({
+      where: { id: submissionId },
+      include: {
+        station: { include: { company: true } },
+      }
+    });
+
+    if (!submission) {
+      throw new NotFoundError('Submission', submissionId);
+    }
+
+    // Check permissions
+    if (actor.stationId) {
+      if (submission.stationId !== actor.stationId) {
+        throw new PermissionError('Permission denied');
+      }
+    } else if (actor.companyId) {
+      if (submission.companyId !== actor.companyId) {
+        throw new PermissionError('Permission denied');
+      }
+    }
+
+    return prisma.task.findMany({
+      where: {
+        OR: [
+          { originSubmissionId: submissionId },
+          { resolutionSubmissionId: submissionId }
+        ]
+      },
+      include: {
+        originSubmission: true,
+        resolutionSubmission: true,
+        station: { include: { company: true } },
+        obligation: true,
+        createdBy: true,
+        assignedTo: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 
   async createTask(input: CreateTaskInput, actor: AuthenticatedUser) {
     // Only customs users can create tasks
     if (!this.isCustomsUser(actor)) {
       throw new PermissionError('Only customs users can create tasks');
     }
-    // ... (rest of createTask)
-  }
 
-  // ... (re-implement createTask start matching source)
+    const station = await prisma.station.findUnique({
+      where: { id: input.stationId },
+      include: { company: true }
+    });
+
+    if (!station) {
+      throw new NotFoundError('Station', input.stationId);
+    }
+
+    const task = await prisma.task.create({
+      data: {
+        title: input.title,
+        description: input.description,
+        status: TaskStatus.AWAITING_COMPANY,
+        stationId: station.id,
+        obligationId: input.obligationId,
+        originSubmissionId: input.submissionId,
+        createdById: actor.id,
+        assignedToId: input.assignedToId,
+        dueDate: input.dueDate,
+        fineAmount: input.fineAmount,
+      },
+      include: {
+        originSubmission: true,
+        resolutionSubmission: true,
+        station: { include: { company: true } },
+        obligation: true,
+        createdBy: true,
+        assignedTo: true,
+      },
+    });
+
+    return task;
+  }
 
   async updateTask(id: string, input: UpdateTaskInput, actor: AuthenticatedUser) {
     const task = await this.getTaskById(id, actor);
@@ -180,6 +252,10 @@ export class TasksService {
     });
   }
 
+  async updateTaskStatus(id: string, input: UpdateTaskInput, actor: AuthenticatedUser) {
+    return this.updateTask(id, input, actor);
+  }
+
   async addTaskMessage(taskId: string, input: CreateTaskMessageInput, actor: AuthenticatedUser) {
     const task = await this.getTaskById(taskId, actor);
 
@@ -223,4 +299,3 @@ export class TasksService {
     ].includes(actor.role as any);
   }
 }
-

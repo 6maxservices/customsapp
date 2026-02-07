@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './features/auth/AuthContext';
 import LoginPage from './features/auth/LoginPage';
 import CompanyDashboard from './features/dashboard/CompanyDashboard';
+import ReviewQueuePage from './features/submissions/ReviewQueuePage';
 import CustomsDashboard from './features/dashboard/CustomsDashboard';
 import StationDashboard from './features/dashboard/StationDashboard';
 import StationHistory from './features/dashboard/StationHistory';
@@ -63,6 +64,23 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      <Route
+        path="/company/:companyId"
+        element={
+          <ProtectedRoute>
+            <CompanyDashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/:companyId/queue"
+        element={
+          <ProtectedRoute>
+            <ReviewQueuePage />
+          </ProtectedRoute>
+        }
+      />
+      {/* Customs Reviewer Routes */}
       <Route
         path="/companies/:companyId/dashboard"
         element={

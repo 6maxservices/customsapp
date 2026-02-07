@@ -112,6 +112,14 @@ export default function TaskDetailPage() {
                     <span className="text-red-600 font-medium">Due {formatDateGreek(task.dueDate)}</span>
                   </>
                 )}
+                {task.fineAmount && (
+                  <>
+                    <span>•</span>
+                    <span className="text-red-700 font-bold bg-red-50 px-2 py-0.5 rounded border border-red-200">
+                      Fine: €{task.fineAmount.toLocaleString()}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
 
