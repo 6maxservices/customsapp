@@ -69,9 +69,11 @@ router.post('/logout', (req: Request, res: Response) => {
 // Get current user
 router.get('/me', requireAuth, async (req: Request, res: Response, next: NextFunction) => {
   try {
+    console.log('GET /me - Authorized user:', req.user?.email);
     const user = await identityService.getCurrentUser(req.user!.id);
     res.json({ user });
   } catch (error) {
+    console.error('GET /me - Error:', error);
     return next(error);
   }
 });

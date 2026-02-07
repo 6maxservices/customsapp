@@ -50,6 +50,7 @@ app.use(
     resave: false,
     saveUninitialized: false,
     name: 'sessionId',
+    proxy: config.nodeEnv === 'production', // Required for Vercel/proxies
     store: new PrismaSessionStore(
       prisma,
       {
@@ -62,7 +63,7 @@ app.use(
       secure: config.nodeEnv === 'production',
       httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax', // Proxy fix allows 'lax' effectively (safer than none)
+      sameSite: config.nodeEnv === 'production' ? 'none' : 'lax', // 'none' + secure allows cross-site session (Vercel subdomains)
       path: '/',
     },
   })
