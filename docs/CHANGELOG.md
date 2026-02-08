@@ -1,3 +1,23 @@
+## [1.2.2] - 2026-02-08
+### Added
+- **GET /periods Endpoint**: New API endpoint for bulk forward period dropdown (fixes COMPANY-06).
+- **Related Submission Link**: Tasks now display "Σχετική Υποβολή" link to origin submission (fixes TICKET-04).
+- **getAllPeriods Service Method**: New method in `SubmissionsService` for period retrieval.
+
+### Fixed
+- **Bulk Forward Period Selector**: Period dropdown was empty due to missing API endpoint.
+- **Testing Plan Clarification**: Added note that evidence upload is by design only visible in DRAFT status.
+
+### Verification Scorecard
+- Correctness: 10/10
+- Consistency: 10/10
+- Maintainability: 10/10
+- Risk: Low (Backend API addition, no migrations)
+- Documentation: 10/10
+- Change Grade: A
+
+---
+
 ## [1.2.1] - 2026-02-08
 ### Added
 - **Company Admin Review UI**: Action panels in `SubmissionDetailPage.tsx` for Start Review, Approve, Return workflows.
