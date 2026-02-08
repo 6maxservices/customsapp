@@ -2,7 +2,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '../../lib/api';
 import { useAuth } from '../auth/AuthContext';
-import { CheckCircle, XCircle, AlertTriangle, Plus } from 'lucide-react';
+import { CheckCircle, XCircle, AlertTriangle, Plus, RotateCcw, PlayCircle, Clipboard } from 'lucide-react';
 import ComplianceChecklist from '../../components/ComplianceChecklist';
 import { commonText, translateSubmissionStatus, formatDateGreek } from '../../lib/translations';
 
@@ -61,6 +61,7 @@ interface Submission {
     email: string;
   } | null;
   checks: SubmissionCheck[];
+  forwardedAt?: string | null;
 }
 
 export default function SubmissionDetailPage() {
@@ -69,6 +70,7 @@ export default function SubmissionDetailPage() {
   const queryClient = useQueryClient();
 
   const isCustomsUser = user?.role.startsWith('CUSTOMS_') || user?.role === 'SYSTEM_ADMIN';
+  const isCompanyAdmin = user?.role === 'COMPANY_ADMIN';
 
   // Fetch submission
   const { data: submission, isLoading: submissionLoading } = useQuery<Submission>({
@@ -93,6 +95,36 @@ export default function SubmissionDetailPage() {
   const updateStatusMutation = useMutation({
     mutationFn: async (status: string) => {
       return api.put(`/submissions/${id}/status`, { status });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['submission', id] });
+    },
+  });
+
+  // Company Admin: Start Review mutation
+  const startReviewMutation = useMutation({
+    mutationFn: async () => {
+      return api.post(`/company/submissions/${id}/start-review`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['submission', id] });
+    },
+  });
+
+  // Company Admin: Approve mutation
+  const approveMutation = useMutation({
+    mutationFn: async () => {
+      return api.post(`/company/submissions/${id}/approve`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['submission', id] });
+    },
+  });
+
+  // Company Admin: Return for Correction mutation
+  const returnMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      return api.post(`/company/submissions/${id}/return`, { returnReason: reason });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['submission', id] });
@@ -255,6 +287,86 @@ export default function SubmissionDetailPage() {
               >
                 <CheckCircle className="h-5 w-5" />
                 Approve Declaration
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Customs User: Create Task Button */}
+      {isCustomsUser && (submission.status === 'APPROVED' || submission.forwardedAt) && (
+        <div className="bg-indigo-50 border border-indigo-100 rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Δημιουργία Εργασίας/Κύρωσης</h2>
+              <p className="text-sm text-gray-600">Η υποβολή θα συνδεθεί αυτόματα.</p>
+            </div>
+            <Link
+              to={`/tasks/new?submissionId=${id}&stationId=${submission.station.id}&companyId=${submission.company?.id}`}
+              className="flex items-center gap-2 px-6 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 font-medium shadow-md transition-all hover:shadow-lg"
+            >
+              <Clipboard className="h-5 w-5" />
+              Δημιουργία Εργασίας
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Company Admin: Start Review */}
+      {isCompanyAdmin && submission.status === 'SUBMITTED' && (
+        <div className="bg-green-50 border border-green-200 rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Αναθεώρηση Υποβολής</h2>
+              <p className="text-sm text-gray-600">Εξετάστε τα δεδομένα πριν εγκρίνετε ή επιστρέψετε την υποβολή.</p>
+            </div>
+            <button
+              onClick={() => startReviewMutation.mutate()}
+              disabled={startReviewMutation.isPending}
+              className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium shadow-md transition-all hover:shadow-lg disabled:opacity-50"
+            >
+              <PlayCircle className="h-5 w-5" />
+              Έναρξη Αναθεώρησης
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Company Admin: Approve or Return */}
+      {isCompanyAdmin && submission.status === 'UNDER_REVIEW' && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg shadow-sm p-6 mb-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h2 className="text-lg font-bold text-gray-900">Απόφαση Εταιρείας</h2>
+              <p className="text-sm text-gray-600">Εγκρίνετε για προώθηση ή επιστρέψτε για διόρθωση.</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  const reason = window.prompt('Λόγος επιστροφής (υποχρεωτικό):');
+                  if (reason && reason.length >= 5) {
+                    returnMutation.mutate(reason);
+                  } else if (reason) {
+                    alert('Ο λόγος πρέπει να είναι τουλάχιστον 5 χαρακτήρες.');
+                  }
+                }}
+                disabled={returnMutation.isPending}
+                className="flex items-center gap-2 px-4 py-2 bg-white text-amber-600 border border-amber-300 rounded-md hover:bg-amber-50 font-medium transition-colors shadow-sm disabled:opacity-50"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Επιστροφή για Διόρθωση
+              </button>
+              <button
+                onClick={() => {
+                  if (window.confirm('Είστε σίγουροι ότι θέλετε να εγκρίνετε αυτή την υποβολή;')) {
+                    approveMutation.mutate();
+                  }
+                }}
+                disabled={approveMutation.isPending}
+                className="flex items-center gap-2 px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 font-medium shadow-md transition-all hover:shadow-lg disabled:opacity-50"
+              >
+                <CheckCircle className="h-5 w-5" />
+                Έγκριση
               </button>
             </div>
           </div>

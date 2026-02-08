@@ -9,6 +9,8 @@ import {
     Settings,
     X,
     Map,
+    ClipboardCheck,
+    Send,
 } from 'lucide-react';
 import { commonText, translateUserRole } from '../../lib/translations';
 
@@ -54,6 +56,18 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
             roles: ['COMPANY_ADMIN', 'CUSTOMS_REVIEWER', 'SYSTEM_ADMIN'],
         },
         {
+            name: 'Ουρά Αναθεώρησης', // Review Queue (Company Admin)
+            href: '/company/queue',
+            icon: ClipboardCheck,
+            roles: ['COMPANY_ADMIN'],
+        },
+        {
+            name: 'Προώθηση στο Τελωνείο', // Forward to Customs
+            href: '/company/forward',
+            icon: Send,
+            roles: ['COMPANY_ADMIN'],
+        },
+        {
             name: 'Ουρά Ελέγχου', // Audit Queue (Customs)
             href: '/audit/queue',
             icon: CheckSquare,
@@ -66,15 +80,15 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
             roles: ['STATION_OPERATOR', 'COMPANY_ADMIN', 'CUSTOMS_REVIEWER', 'SYSTEM_ADMIN'],
         },
         {
-            name: 'Χρήστες', // Users
-            href: '/settings/users',
-            icon: Users,
-            roles: ['COMPANY_ADMIN', 'SYSTEM_ADMIN'],
+            name: 'Διαχείριση Συστήματος', // System Admin
+            href: '/admin',
+            icon: Settings,
+            roles: ['SYSTEM_ADMIN'],
         },
         {
-            name: 'Ρυθμίσεις', // Settings
-            href: '/settings',
-            icon: Settings,
+            name: 'Χρήστες', // Users
+            href: '/admin/users',
+            icon: Users,
             roles: ['SYSTEM_ADMIN'],
         },
     ];
@@ -125,8 +139,8 @@ export default function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                                     to={item.href}
                                     onClick={() => setSidebarOpen(false)}
                                     className={`flex items-center px-4 py-3.5 text-[14px] font-semibold rounded-xl transition-all duration-200 group relative border shadow-sm ${active
-                                            ? 'bg-blue-50 text-aade-primary border-blue-100'
-                                            : 'text-gray-500 hover:text-aade-primary hover:bg-gray-50 border-transparent shadow-none'
+                                        ? 'bg-blue-50 text-aade-primary border-blue-100'
+                                        : 'text-gray-500 hover:text-aade-primary hover:bg-gray-50 border-transparent shadow-none'
                                         }`}
                                 >
                                     <Icon className={`mr-3.5 h-[18px] w-[18px] ${active ? 'text-aade-accent' : 'text-gray-400 group-hover:text-aade-accent'}`} />

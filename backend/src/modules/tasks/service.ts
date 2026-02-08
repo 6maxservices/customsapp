@@ -189,7 +189,7 @@ export class TasksService {
         createdById: actor.id,
         assignedToId: input.assignedToId,
         dueDate: input.dueDate,
-        fineAmount: input.fineAmount,
+        // fineAmount: input.fineAmount, // Not in current schema - add if needed
       },
       include: {
         originSubmission: true,

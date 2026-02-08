@@ -101,7 +101,7 @@ export class CompanyService {
     async returnSubmission(submissionId: string, actor: AuthenticatedUser, reason: string) {
         const submission = await this.validateAccess(submissionId, actor);
 
-        if (![SubmissionStatus.SUBMITTED, SubmissionStatus.UNDER_REVIEW].includes(submission.status)) {
+        if (!([SubmissionStatus.SUBMITTED, SubmissionStatus.UNDER_REVIEW] as string[]).includes(submission.status)) {
             throw new ValidationError(`Cannot return ${submission.status} submission`);
         }
 
@@ -120,7 +120,7 @@ export class CompanyService {
     async approveSubmission(submissionId: string, actor: AuthenticatedUser) {
         const submission = await this.validateAccess(submissionId, actor);
 
-        if (![SubmissionStatus.SUBMITTED, SubmissionStatus.UNDER_REVIEW].includes(submission.status)) {
+        if (!([SubmissionStatus.SUBMITTED, SubmissionStatus.UNDER_REVIEW] as string[]).includes(submission.status)) {
             throw new ValidationError(`Cannot approve ${submission.status} submission`);
         }
 

@@ -129,11 +129,11 @@ export class OversightService {
             query.orderBy = { forwardedAt: 'asc' };
         }
 
-        const items = await prisma.submission.findMany(query);
+        const items = await prisma.submission.findMany(query) as Array<any>;
 
         // In-memory sort by risk score if requested
         if (filters.prioritizeHighRisk) {
-            items.sort((a, b) => b.station.riskScore - a.station.riskScore);
+            items.sort((a, b) => (b.station?.riskScore || 0) - (a.station?.riskScore || 0));
         }
 
         return items.slice(0, limit);

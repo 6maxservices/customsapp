@@ -17,6 +17,13 @@ import TasksPage from './features/tasks/TasksPage';
 import TaskDetailPage from './features/tasks/TaskDetailPage';
 import CreateTaskPage from './features/tasks/CreateTaskPage';
 import Layout from './components/Layout';
+import AccessDenied from './components/AccessDenied';
+import AdminDashboardPage from './features/admin/AdminDashboardPage';
+import UsersPage from './features/admin/UsersPage';
+import CompaniesPage from './features/admin/CompaniesPage';
+import AdminStationsPage from './features/admin/StationsPage';
+import BulkForwardPage from './features/company/BulkForwardPage';
+import AuditQueuePage from './features/oversight/AuditQueuePage';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth();
@@ -77,6 +84,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <ReviewQueuePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/queue"
+        element={
+          <ProtectedRoute>
+            <ReviewQueuePage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/company/forward"
+        element={
+          <ProtectedRoute>
+            <BulkForwardPage />
           </ProtectedRoute>
         }
       />
@@ -169,10 +192,7 @@ function AppRoutes() {
         path="/audit/queue"
         element={
           <ProtectedRoute>
-            <div className="p-8 text-center bg-white rounded-2xl shadow-sm border border-gray-100">
-              <h2 className="text-2xl font-bold text-aade-primary mb-2">Ουρά Ελέγχου</h2>
-              <p className="text-gray-500 italic">Η ουρά ελέγχου θα υλοποιηθεί στο WF-04.</p>
-            </div>
+            <AuditQueuePage />
           </ProtectedRoute>
         }
       />
@@ -198,6 +218,41 @@ function AppRoutes() {
           </ProtectedRoute>
         }
       />
+      {/* System Admin Routes */}
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <AdminDashboardPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/users"
+        element={
+          <ProtectedRoute>
+            <UsersPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/companies"
+        element={
+          <ProtectedRoute>
+            <CompaniesPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin/stations"
+        element={
+          <ProtectedRoute>
+            <AdminStationsPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="/access-denied" element={<ProtectedRoute><AccessDenied /></ProtectedRoute>} />
+      <Route path="*" element={<ProtectedRoute><AccessDenied /></ProtectedRoute>} />
       <Route path="/" element={<Navigate to="/dashboard" />} />
     </Routes >
   );

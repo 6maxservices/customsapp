@@ -11,6 +11,7 @@ export const createUserSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters'),
   role: z.nativeEnum(UserRole),
   companyId: z.string().uuid().nullable().optional(),
+  stationId: z.string().uuid().nullable().optional(),
 });
 
 export const updateUserSchema = z.object({
@@ -18,5 +19,6 @@ export const updateUserSchema = z.object({
   password: z.string().min(8, 'Password must be at least 8 characters').optional(),
   role: z.nativeEnum(UserRole).optional(),
   companyId: z.string().uuid().nullable().optional(),
+  stationId: z.string().uuid().nullable().optional(),
 });
 

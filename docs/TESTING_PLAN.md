@@ -1,79 +1,208 @@
-# FuelGuard Application Testing Plan
+# FuelGuard: Testing Plan & Operational Manual
 
-This document provides a detailed testing protocol for the FuelGuard Compliance System. Testers should follow each scenario, check the appropriate boxes, and provide detailed notes for any failures or observations.
+This document is the definitive guide for testing the FuelGuard Compliance System. It combines high-level workflows with role-specific interface details and a rigorous test case registry.
 
----
-
-## 1. General & Authentication (All Roles)
-
-| ID | Scenario | Steps | Expected Result | Pass/Fail | Comments |
-|:---|:---|:---|:---|:---:|:---|
-|AUTH-01| Login Success | Enter valid credentials and click "Σύνδεση" | Redirected to correct role-based dashboard | [ ] | |
-|AUTH-02| Role Redirect | Login as Station Operator | URL contains `/dashboard` and sidebar shows only "Dashboard", "Stations", "Submissions" | [ ] | |
-|AUTH-03| Role Redirect | Login as Company Admin | URL contains `/dashboard` and sidebar shows "Review Queue", "Users" | [ ] | |
-|AUTH-04| Role Redirect | Login as Customs Reviewer | URL contains `/dashboard` and sidebar shows "National Dashboard", "Ticketing" | [ ] | |
-|AUTH-05| Unauthorized Access | Manually enter URL restricted to another role | System redirects to home or shows "Access Denied" | [ ] | |
-|AUTH-06| Logout | Click Logout button | Session terminated, redirected to Login page | [ ] | |
+> **Last Updated**: 2026-02-08  
+> **Version**: 2.0 (Post-QA Gap Fixes)
 
 ---
 
-## 2. Station Operator Workflow (WF-02)
+## I. Workflow Registry
 
-| ID | Scenario | Steps | Expected Result | Pass/Fail | Comments |
-|:---|:---|:---|:---|:---:|:---|
-|STATION-01| Create Submission | Select period and start new submission | Checklist loaded with dynamic obligations | [ ] | |
-|STATION-02| Data Entry | Fill boolean, date, and text fields | System validates inputs (e.g., date formats) | [ ] | |
-|STATION-03| Evidence Upload | Upload .pdf/image for an obligation | Metadata appears; file remains associated with specific check | [ ] | |
-|STATION-04| Final Submit | Review and click "Submit" | Status changes to `SUBMITTED`, record becomes read-only for operator | [ ] | |
-|STATION-05| Drafting | Save as Draft | Submission remains editable for later completion | [ ] | |
-
----
-
-## 3. Company Admin Workflow (WF-03)
-
-| ID | Scenario | Steps | Expected Result | Pass/Fail | Comments |
-|:---|:---|:---|:---|:---:|:---|
-|COMPANY-01| Dashboard Stats | View "Πίνακας Ελέγχου Εταιρείας" | KPI cards show aggregate counts of stations and compliance status | [ ] | |
-|COMPANY-02| Review Queue | Open "Ουρά Ελέγχου" | All `SUBMITTED` submissions from company stations are listed | [ ] | |
-|COMPANY-03| Start Review | Click "Επανεξέταση" on a submission | Status moves to `UNDER_REVIEW` (locks for other admins) | [ ] | |
-|COMPANY-04| Return for Correction| Click "Return to Correction" and enter reason | Status reverts to `DRAFT` for station; reason visible to operator | [ ] | |
-|COMPANY-05| Approve | Click "Approve" | Status moves to `APPROVED`, ready for forwarding | [ ] | |
-|COMPANY-06| Bulk Forward | Select "ONLY_APPROVED" mode on Forwarding page | Only approved items are sent to Customs; audit log created | [ ] | |
-|COMPANY-07| Bulk Forward (Edge) | Select "INCLUDE_EDGE_CASES" without explanations | System blocks batch or prompts for mandatory explanations | [ ] | |
+| ID | Name | Description | Related Role |
+|:---|:---|:---|:---|
+| **WF-01** | **Auth & Redirect** | Validates credentials and routes users to specific dashboards. | All |
+| **WF-02** | **Compliance Submission** | Operators enter data and evidence for active periods. | Station Operator |
+| **WF-03** | **Company Oversight** | Admins review, return for correction, approve, and forward station data. | Company Admin |
+| **WF-04** | **Customs Audit** | National oversight via Risk Map and Audit Queue scoring. | Customs Reviewer |
+| **WF-05** | **Ticketing System** | Resolution loop for findings, corrective actions, and fines. | Customs / Company |
+| **WF-06** | **Sync & Maintenance** | Database schema and catalog synchronization procedures. | System Admin |
 
 ---
 
-## 4. Customs Reviewer Workflow (WF-04)
+## II. Test Accounts
 
-| ID | Scenario | Steps | Expected Result | Pass/Fail | Comments |
-|:---|:---|:---|:---|:---:|:---|
-|CUSTOMS-01| National Overview | View "National Oversight Center" dashboard | KPIs show national totals across all companies | [ ] | |
-|CUSTOMS-02| Risk Map | Click marker on "Live Risk Map" | Station details and risk score popup displayed | [ ] | |
-|CUSTOMS-03| Audit Queue | Filter by "Critical" priority | High-risk forwarded submissions moved to top of list | [ ] | |
-|CUSTOMS-04| Audit Verification | Inspect evidence in a forwarded submission | File viewer opens; reviewer can see Company's internal approval notes | [ ] | |
-
----
-
-## 5. Ticketing System - Actions & Sanctions (WF-05)
-
-| ID | Scenario | Steps | Expected Result | Pass/Fail | Comments |
-|:---|:---|:---|:---|:---:|:---|
-|TICKET-01| Create Ticket | Customs creates "Action Required" from Audit finding | Ticket appears in Company Operator "Εργασίες" queue | [ ] | |
-|TICKET-02| Sanction Fine | Create "Sanction" with `fineAmount` | Fine value clearly displayed on ticket and dashboard | [ ] | |
-|TICKET-03| Message Thread | Company posts reply with proof | Message visible to Customs with timestamp and user ID | [ ] | |
-|TICKET-04| Resolution Link | Click "Σχετική Υποβολή" in ticket detail | Redirects to the specific submission data that triggered the ticket | [ ] | |
-|TICKET-05| Closing Case | Customs clicks "Resolve" | Ticket status moves to `CLOSED`; status update reflected on both dashboards | [ ] | |
+| Role | Email | Password | Expected Dashboard |
+|:---|:---|:---|:---|
+| Station Operator | `station@alpha.gr` | password123 | Station Dashboard |
+| Company Admin | `admin@alpha.gr` | password123 | Company Dashboard |
+| Customs Reviewer | `reviewer@customs.gov.gr` | password123 | National Dashboard |
+| System Admin | `sysadmin@customs.gov.gr` | password123 | Admin Dashboard |
 
 ---
 
-## 6. Smoke Test Checklist (Final Verification)
+## III. Role Interface & Task Guide
 
-- [ ] Clear Browser Cache/Cookies (Start Fresh)
-- [ ] Verify Database connectivity (`/health` endpoint)
-- [ ] Check sidebar navigation for responsiveness (Mobile/Desktop)
-- [ ] Confirm all Greek (EL) translations are consistent in UI
-- [ ] Verify PDF "Notice of Violation" generates (if module active)
+### 1. Station Operator (`station@alpha.gr`)
+**Interface Focus**: Manual Data Entry & Evidence Collection.
 
-**Tester Name**: __________________________  
-**Date**: __________________________  
-**Environment**: [ ] staging  [ ] production  [ ] local-dev
+**Sidebar Links**:
+- Πίνακας Ελέγχου (Dashboard)
+- Εργασίες (Tasks)
+
+**Key Actions**:
+| Action | Steps | Expected Result |
+|:---|:---|:---|
+| Submit Compliance | Dashboard → Start New Submission → Fill checklist → Upload evidence → Final Submit | Status changes to SUBMITTED |
+| Upload Evidence | Open DRAFT submission → Click "+ Upload" on obligation → Select file | File appears in Attachments |
+| Fix Returned Submission | Open returned submission → Read reason → Edit data → Re-submit | Status changes from DRAFT to SUBMITTED |
+
+---
+
+### 2. Company Admin (`admin@alpha.gr`)
+**Interface Focus**: Monitoring, Quality Control, and Bulk Actions.
+
+**Sidebar Links**:
+- Πίνακας Ελέγχου (Dashboard)
+- Καταστήματα (Stations)
+- Υποβολές (Submissions)
+- **Ουρά Αναθεώρησης** (Review Queue) ← NEW
+- **Προώθηση στο Τελωνείο** (Forward to Customs) ← NEW
+- Εργασίες (Tasks)
+
+**Key Actions**:
+| Action | Steps | Expected Result |
+|:---|:---|:---|
+| Start Review | Review Queue → Select submission → Click "Έναρξη Αναθεώρησης" | Status: SUBMITTED → UNDER_REVIEW |
+| Approve Submission | Submission detail (UNDER_REVIEW) → Click "Έγκριση" | Status: UNDER_REVIEW → APPROVED |
+| Return for Correction | Submission detail (UNDER_REVIEW) → Click "Επιστροφή για Διόρθωση" → Enter reason | Status: UNDER_REVIEW → DRAFT |
+| Bulk Forward | Προώθηση στο Τελωνείο → Select period → Choose mode → Forward | Submissions forwarded to Customs |
+
+---
+
+### 3. Customs Reviewer (`reviewer@customs.gov.gr`)
+**Interface Focus**: Risk Analysis & Enforcement (BI).
+
+**Sidebar Links**:
+- Πίνακας Ελέγχου (Dashboard)
+- Εθνικός Χάρτης (National Map)
+- Υποβολές (Submissions)
+- **Ουρά Ελέγχου** (Audit Queue) ← IMPLEMENTED
+- Εργασίες (Tasks)
+
+**Key Actions**:
+| Action | Steps | Expected Result |
+|:---|:---|:---|
+| View Audit Queue | Ουρά Ελέγχου | List of forwarded submissions sorted by risk score |
+| Filter by Risk | Toggle "Υψηλός κίνδυνος πρώτα" | High risk (score ≥70) appears first |
+| Create Task from Audit | Submission detail (APPROVED/forwarded) → Click "Δημιουργία Εργασίας" | Navigate to task creation with submissionId pre-filled |
+| Approve/Reject Submission | Submission detail (SUBMITTED) → Click Approve/Reject | Status updates accordingly |
+
+---
+
+## IV. Detailed Test Registry
+
+### Legacy Test Cases
+
+| ID | Scenario | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---:|
+| SC-01 | Login & 2FA | Login as any role | Session established; correctly routed to assigned URL prefix. | [ ] |
+| SC-02 | Return Logic | Company Admin returns a submission with reason "Blurry Evidence" | Station Operator sees alert + reason; status reverts to `DRAFT`. | [ ] |
+| SC-03 | Risk Heatmap | Customs user loads dashboard | Map displays markers; color switches (Green/Yellow/Red) based on station status. | [ ] |
+| SC-04 | Ticketing Loop | Customs creates Ticket → Company replies → Customs Resolves | Full message thread persistency; ticket status updates across both roles. | [ ] |
+| SC-05 | Evidence Security | Access `/evidence/[id]` without a session | System returns 401 or 403; file remains protected. | [ ] |
+| SC-06 | Deadline Job | Move system clock past deadline | `MissingSubmission` records automatically generated for non-submitters. | [ ] |
+
+---
+
+### NEW: Company Admin Review Workflow (P0)
+
+| ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---|:---:|
+| **CA-01** | Review Queue Accessible | Logged in as Company Admin | Click "Ουρά Αναθεώρησης" in sidebar | Page loads with list of submissions or empty state | [ ] |
+| **CA-02** | Start Review Button Visible | Submission status = SUBMITTED | Open submission detail page | Green panel with "Έναρξη Αναθεώρησης" button visible | [ ] |
+| **CA-03** | Start Review Action | Submission status = SUBMITTED | Click "Έναρξη Αναθεώρησης" | Status changes to UNDER_REVIEW; action panel changes | [ ] |
+| **CA-04** | Approve/Return Panel | Submission status = UNDER_REVIEW | View submission detail | Amber panel with "Έγκριση" and "Επιστροφή για Διόρθωση" buttons | [ ] |
+| **CA-05** | Approve Submission | Submission status = UNDER_REVIEW | Click "Έγκριση" → Confirm dialog | Status changes to APPROVED | [ ] |
+| **CA-06** | Return for Correction | Submission status = UNDER_REVIEW | Click "Επιστροφή για Διόρθωση" → Enter reason (min 5 chars) | Status changes to DRAFT; reason saved | [ ] |
+| **CA-07** | Return Reason Validation | Submission status = UNDER_REVIEW | Click "Επιστροφή" → Enter 3 chars | Alert: "Ο λόγος πρέπει να είναι τουλάχιστον 5 χαρακτήρες" | [ ] |
+| **CA-08** | Bulk Forward Page | Logged in as Company Admin | Click "Προώθηση στο Τελωνείο" | Page loads with period selector and mode options | [ ] |
+| **CA-09** | Bulk Forward: Only Approved | Multiple APPROVED submissions exist | Select period → Mode: "Μόνο Εγκεκριμένες" → Forward | Only APPROVED submissions forwarded | [ ] |
+| **CA-10** | Bulk Forward: Edge Cases | Non-approved submissions exist | Select "Συμπερίληψη Ειδικών Περιπτώσεων" → Select station → Enter explanation | Explanation required for each edge case | [ ] |
+
+---
+
+### NEW: Station Operator Evidence Upload (P1)
+
+| ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---|:---:|
+| **SO-01** | Upload Button Visible in DRAFT | Submission status = DRAFT | Open submission → View obligation | "+ Upload" button visible in Attachments section | [ ] |
+| **SO-02** | Upload Button Hidden in SUBMITTED | Submission status = SUBMITTED | Open submission → View obligation | No "+ Upload" button; only view/download | [ ] |
+| **SO-03** | Upload File Success | Submission status = DRAFT | Click "+ Upload" → Select PDF/image | File appears in Attachments list | [ ] |
+| **SO-04** | Delete Evidence | Submission status = DRAFT | Click trash icon on uploaded file | File removed from list | [ ] |
+| **SO-05** | View/Download Evidence | Any submission with evidence | Click eye icon on file | File opens/downloads in new tab | [ ] |
+
+---
+
+### NEW: Access Denied Handling (P1)
+
+| ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---|:---:|
+| **AD-01** | Unknown Route | Logged in as any user | Navigate to `/nonexistent-page` | AccessDenied page with Greek message | [ ] |
+| **AD-02** | Access Denied Page Content | Any user | View AccessDenied page | Shows "Πρόσβαση Απορρίφθηκε" + "Επιστροφή στην Αρχική" link | [ ] |
+| **AD-03** | Return to Dashboard | On AccessDenied page | Click "Επιστροφή στην Αρχική" | Navigates to /dashboard | [ ] |
+
+---
+
+### NEW: Customs Audit Queue (P2)
+
+| ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---|:---:|
+| **CR-01** | Audit Queue Accessible | Logged in as Customs Reviewer | Click "Ουρά Ελέγχου" in sidebar | Page loads with queue table or empty state | [ ] |
+| **CR-02** | Audit Queue Columns | On Audit Queue page | View table headers | Shows: ΣΤΑΘΜΟΣ/ΕΤΑΙΡΕΙΑ, ΠΕΡΙΟΔΟΣ, ΚΙΝΔΥΝΟΣ, ΠΡΟΩΘΗΘΗΚΕ, ΕΝΕΡΓΕΙΑ | [ ] |
+| **CR-03** | Risk Filter Toggle | On Audit Queue page | Toggle "Υψηλός κίνδυνος πρώτα" checkbox | Submissions reorder by risk score | [ ] |
+| **CR-04** | Empty State | No forwarded submissions | View Audit Queue | Message: "Δεν υπάρχουν εκκρεμείς υποβολές" with green checkmark | [ ] |
+| **CR-05** | Audit Queue Stats | Forwarded submissions exist | View bottom of page | Stats cards: Υψηλού/Μέτριου/Χαμηλού Κινδύνου counts | [ ] |
+| **CR-06** | Navigation to Submission | Forwarded submission in queue | Click "Έλεγχος" button | Navigate to submission detail page | [ ] |
+
+---
+
+### NEW: Customs Create Task (P2)
+
+| ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---|:---:|
+| **CT-01** | Create Task Button Visible | Customs user; submission APPROVED or forwarded | Open submission detail | Indigo panel with "Δημιουργία Εργασίας" button | [ ] |
+| **CT-02** | Create Task Navigation | On submission with Create Task button | Click "Δημιουργία Εργασίας" | Navigates to /tasks/new with query params | [ ] |
+| **CT-03** | Query Params Pre-filled | After clicking Create Task | View URL | Contains submissionId, stationId, companyId | [ ] |
+| **CT-04** | Create Task Button NOT Visible | Station Operator or Company Admin | Open any submission | No indigo Create Task panel | [ ] |
+
+---
+
+## V. Regression Tests
+
+After QA gap fixes, ensure these existing features still work:
+
+| ID | Feature | Steps | Expected Result | Pass/Fail |
+|:---|:---|:---|:---|:---:|
+| REG-01 | Station Dashboard | Login as Station Operator → View dashboard | Shows station info, next deadline, submission history | [ ] |
+| REG-02 | Company Dashboard | Login as Company Admin → View dashboard | Shows station metrics, pending reviews | [ ] |
+| REG-03 | Submissions List | Navigate to Υποβολές | Lists all accessible submissions with status badges | [ ] |
+| REG-04 | Task Thread | Open existing task → Add message | Message appears in thread | [ ] |
+| REG-05 | Admin User Management | Login as System Admin → Admin → Users | Can view/edit/create users | [ ] |
+
+---
+
+## VI. Comment & Feedback Section
+
+*Please use this section to record any UI/UX friction or data inconsistencies.*
+
+| Tester | Role Tested | Date | Observations / Issues |
+|:---|:---|:---|:---|
+| Automated | Company Admin | 2026-02-08 | ✅ Review Queue + Start Review button verified |
+| Automated | Customs Reviewer | 2026-02-08 | ✅ Audit Queue page renders correctly (empty state) |
+| | | | |
+
+---
+
+## VII. Sign-Off
+
+| Phase | Status | Date | Tester |
+|:---|:---|:---|:---|
+| Development Testing | ✅ Complete | 2026-02-08 | AI Agent |
+| QA Team Testing | ☐ Pending | | |
+| UAT | ☐ Pending | | |
+| Production | ☐ Pending | | |
+
+---
+
+**Approval Status**: [x] Internal Review  [ ] Ready for Field Testing

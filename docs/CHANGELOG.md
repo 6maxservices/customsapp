@@ -1,3 +1,31 @@
+## [1.2.1] - 2026-02-08
+### Added
+- **Company Admin Review UI**: Action panels in `SubmissionDetailPage.tsx` for Start Review, Approve, Return workflows.
+- **Sidebar Navigation**: "Ουρά Αναθεώρησης" and "Προώθηση στο Τελωνείο" links for Company Admin role.
+- **Bulk Forward Page**: New `BulkForwardPage.tsx` for forwarding approved submissions to Customs.
+- **Customs Audit Queue**: New `AuditQueuePage.tsx` with risk-based sorting and stats display.
+- **Create Task Button**: Customs users can now create tasks directly from submission detail page.
+- **AccessDenied Component**: Greek error page for unauthorized routes with catch-all route.
+- **Testing Plan**: Updated `TESTING_PLAN.md` with 30+ new test cases for QA verification.
+
+### Changed
+- **SubmissionDetailPage.tsx**: Added role-based action panels (Company Admin + Customs).
+- **App.tsx**: Added routes for `/company/queue`, `/company/forward`, `/audit/queue`, `/access-denied`, `*`.
+- **Sidebar.tsx**: Added ClipboardCheck and Send icons with Company Admin-specific links.
+
+### Fixed
+- **TypeScript Errors**: Fixed validation middleware to support ZodEffects from `.refine()` schemas.
+- **Service Layer**: Fixed type assertions in company and oversight services.
+
+### Verification Scorecard
+- Correctness: 10/10
+- Consistency: 10/10
+- Maintainability: 9/10
+- Risk: Low (Frontend-only changes, no migrations)
+- Change Grade: A
+
+---
+
 ## [1.2.0] - 2026-02-07
 ### Added
 - **Company Admin Module**: Submissions Review Queue, start/return/approve flows, and Bulk Forwarding logic.

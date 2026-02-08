@@ -17,6 +17,7 @@ import reportingRoutes from './api/routes/reporting';
 import dashboardRoutes from './api/routes/dashboard';
 import companyRoutes from './api/routes/company';
 import oversightRoutes from './api/routes/oversight';
+import usersRoutes from './api/routes/users';
 
 const app = express();
 
@@ -124,6 +125,7 @@ app.use('/api', reportingRoutes);
 app.use('/api', dashboardRoutes);
 app.use('/api/company', companyRoutes);
 app.use('/api/oversight', oversightRoutes);
+app.use('/api/users', usersRoutes);
 
 // Error handler (must be last)
 app.use(errorHandler);

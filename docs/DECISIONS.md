@@ -35,3 +35,16 @@ This document records significant architectural decisions, their context, and co
 *   **Date**: 2026-02-07
 *   **Context**: Deadlines were previously calculated by adding working days.
 *   **Decision**: The deadline is strictly defined as `endDate` at 23:59:59 (Europe/Athens time).
+
+## [ADR-005] SYSTEM_ADMIN-Only User Creation
+*   **Status**: Accepted
+*   **Date**: 2026-02-07
+*   **Context**: The application needs strict control over who can create user accounts to prevent unauthorized access.
+*   **Decision**: **ONLY users with the `SYSTEM_ADMIN` role can create, update, or deactivate user accounts.** This includes:
+    *   Creating new users.
+    *   Assigning users to Companies and Stations.
+    *   Changing user roles.
+    *   Deactivating user accounts.
+*   **Rationale**: This ensures centralized control over access and prevents delegation of identity management to lower-privilege roles like `COMPANY_ADMIN`.
+*   **Consequences**: Company Admins cannot onboard their own Station Operators; they must request user creation through a System Admin. The System Admin module will be the exclusive interface for user management.
+
