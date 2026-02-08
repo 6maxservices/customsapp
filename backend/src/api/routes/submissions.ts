@@ -12,6 +12,17 @@ const router = Router();
 const submissionsService = new SubmissionsService();
 
 // Periods
+
+// GET all periods (for bulk forward dropdown)
+router.get('/periods', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const periods = await submissionsService.getAllPeriods();
+    return res.json({ periods });
+  } catch (error) {
+    return next(error);
+  }
+});
+
 router.get('/periods/current', requireAuth, async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const period = await submissionsService.getCurrentPeriod();

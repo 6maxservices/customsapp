@@ -124,6 +124,10 @@ This document is the definitive guide for testing the FuelGuard Compliance Syste
 
 ### NEW: Station Operator Evidence Upload (P1)
 
+> [!IMPORTANT]
+> Evidence upload is **by design only visible when submission status = DRAFT**. 
+> Once submitted, evidence cannot be modified. This is intended behavior.
+
 | ID | Scenario | Preconditions | Steps | Expected Result | Pass/Fail |
 |:---|:---|:---|:---|:---|:---:|
 | **SO-01** | Upload Button Visible in DRAFT | Submission status = DRAFT | Open submission → View obligation | "+ Upload" button visible in Attachments section | [ ] |

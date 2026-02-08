@@ -98,6 +98,13 @@ export class SubmissionsService {
     return period;
   }
 
+  async getAllPeriods(limit: number = 12) {
+    return prisma.submissionPeriod.findMany({
+      orderBy: { startDate: 'desc' },
+      take: limit,
+    });
+  }
+
   async getCurrentPeriod() {
     const now = new Date();
     const year = now.getFullYear();

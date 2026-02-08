@@ -120,6 +120,19 @@ export default function TaskDetailPage() {
                     </span>
                   </>
                 )}
+                {task.originSubmission && (
+                  <>
+                    <span>•</span>
+                    <Link
+                      to={`/submissions/${task.originSubmission.id}`}
+                      className="flex items-center gap-1 text-blue-600 hover:underline font-medium"
+                    >
+                      <FileText className="h-4 w-4" />
+                      Σχετική Υποβολή ({task.originSubmission.period})
+                      <ArrowUpRight className="h-3 w-3" />
+                    </Link>
+                  </>
+                )}
               </div>
             </div>
 
